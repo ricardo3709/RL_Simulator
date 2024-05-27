@@ -58,20 +58,14 @@ def feature_preparation(state):
         indice = np.where(request_attraction_counts_areas[:,0] == area_id)[0]
         request_attraction_counts_areas[indice,1] += counts
 
-    avaliable_veh_areas_col = torch.tensor(avaliable_veh_areas[:,1]).to(device)
-    working_veh_areas_col = torch.tensor(working_veh_areas[:,1]).to(device)
-    request_gen_counts_areas_col = torch.tensor(request_gen_counts_areas[:,1]).to(device)
-    request_rej_counts_areas_col = torch.tensor(request_rej_counts_areas[:,1]).to(device)
-    request_attraction_counts_areas_col = torch.tensor(request_attraction_counts_areas[:,1]).to(device)
-    area_ids = torch.tensor(avaliable_veh_areas[:, 0]).to(device)
-    features_tensor = torch.stack(
-        [area_ids,
-        avaliable_veh_areas_col,
-        working_veh_areas_col,
-        request_gen_counts_areas_col,
-        request_rej_counts_areas_col,
-        request_attraction_counts_areas_col],
-        dim=0
-    ).transpose(0, 1)  # [63, 6]
+    avaliable_veh_areas_tensor = torch.tensor(avaliable_veh_areas, dtype=torch.float, device=device)  # [63, 2]
+    working_veh_areas_tensor = torch.tensor(working_veh_areas, dtype=torch.float, device=device)  # [63]
+    request_gen_counts_areas_tensor = torch.tensor(request_gen_counts_areas, dtype=torch.float, device=device)  # [63]
+    request_rej_counts_areas_tensor = torch.tensor(request_rej_counts_areas, dtype=torch.float, device=device)  # [63]
+    request_attraction_counts_areas_tensor = torch.tensor(request_attraction_counts_areas, dtype=torch.float, device=device)  # [63]
 
-    return features_tensor
+
+    # combine all features, [63, 6]
+    features = torch.stack((avaliable_veh_areas_tensor, working_veh_areas_tensor, request_gen_counts_areas_tensor, request_rej_counts_areas_tensor, request_attraction_counts_areas_tensor), dim=1)
+
+    return features

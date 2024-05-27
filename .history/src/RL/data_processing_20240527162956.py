@@ -63,7 +63,7 @@ def feature_preparation(state):
     request_gen_counts_areas_col = torch.tensor(request_gen_counts_areas[:,1]).to(device)
     request_rej_counts_areas_col = torch.tensor(request_rej_counts_areas[:,1]).to(device)
     request_attraction_counts_areas_col = torch.tensor(request_attraction_counts_areas[:,1]).to(device)
-    area_ids = torch.tensor(avaliable_veh_areas[:, 0]).to(device)
+    area_ids = avaliable_veh_areas[:, 0]
     features_tensor = torch.stack(
         [area_ids,
         avaliable_veh_areas_col,
@@ -73,5 +73,8 @@ def feature_preparation(state):
         request_attraction_counts_areas_col],
         dim=0
     ).transpose(0, 1)  # [63, 6]
+
+
+    
 
     return features_tensor

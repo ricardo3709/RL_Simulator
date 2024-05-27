@@ -395,7 +395,6 @@ class Simulator_Platform(object):
         state = [avaliable_veh_nodes, working_veh_nodes, gen_counts_nodes, rej_counts_nodes, attraction_counts_nodes]
         state = feature_preparation(state)
 
-        return state, network
 
     def get_rej_rate(self):
         # To handle the case where no requests are picked up

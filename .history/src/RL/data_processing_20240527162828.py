@@ -58,12 +58,12 @@ def feature_preparation(state):
         indice = np.where(request_attraction_counts_areas[:,0] == area_id)[0]
         request_attraction_counts_areas[indice,1] += counts
 
-    avaliable_veh_areas_col = torch.tensor(avaliable_veh_areas[:,1]).to(device)
-    working_veh_areas_col = torch.tensor(working_veh_areas[:,1]).to(device)
-    request_gen_counts_areas_col = torch.tensor(request_gen_counts_areas[:,1]).to(device)
-    request_rej_counts_areas_col = torch.tensor(request_rej_counts_areas[:,1]).to(device)
-    request_attraction_counts_areas_col = torch.tensor(request_attraction_counts_areas[:,1]).to(device)
-    area_ids = torch.tensor(avaliable_veh_areas[:, 0]).to(device)
+    avaliable_veh_areas_col = avaliable_veh_areas[:,1]
+    working_veh_areas_col = working_veh_areas[:,1]
+    request_gen_counts_areas_col = request_gen_counts_areas[:,1]
+    request_rej_counts_areas_col = request_rej_counts_areas[:,1]
+    request_attraction_counts_areas_col = request_attraction_counts_areas[:,1]
+    area_ids = avaliable_veh_areas[:, 0]
     features_tensor = torch.stack(
         [area_ids,
         avaliable_veh_areas_col,
@@ -73,5 +73,8 @@ def feature_preparation(state):
         request_attraction_counts_areas_col],
         dim=0
     ).transpose(0, 1)  # [63, 6]
+
+
+    
 
     return features_tensor
