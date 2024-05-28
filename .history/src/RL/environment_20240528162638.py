@@ -60,9 +60,8 @@ class ManhattanTrafficEnv(gym.Env):
         current_rejection_rate = self.simulator.get_rej_rate()
         self.past_rejections.append(current_rejection_rate)
         done = self.simulator.is_done()
-        if done:
-            return done, self.past_rejections
-        return done, None
+
+        return done
 
     def step(self, action):
         # calculate reward

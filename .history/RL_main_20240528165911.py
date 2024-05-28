@@ -32,13 +32,6 @@ if __name__ == "__main__":
     )
 
     # Train the model
-    warm_up_rejections = multi_process_test(models, environment, epochs = 1)
-
-    total_warm_up_rej = []
-    for item in warm_up_rejections:
-        for rej in item._value:
-            total_warm_up_rej.append(rej)
-
-    environment.past_rejections.extend(total_warm_up_rej)
+    multi_process_test()
     train(models, environment, epochs=100)
     # train(gnn_encoder, actor, critic, environment, epochs=100, optimizer=optimizer)

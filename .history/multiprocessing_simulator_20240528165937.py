@@ -18,23 +18,14 @@ combinations = list(itertools.product(REWARD_THETA, REWARD_TYPE, NODE_LAYERS, MO
 test_cases = [{'REWARD_THETA': t, 'REWARD_TYPE': r, 'NODE_LAYERS': n, 'MOVING_AVG_WINDOW': m}
               for t, r, n, m in combinations]
 
-def process_function(models, environment, epochs):
-    past_rejections = warm_up_train(models, environment, epochs)  # Adjust if run_sim expects different parameters
-    return past_rejections
+def process_function():
+    warm_up_train()  # Adjust if run_sim expects different parameters
     # Optionally use cProfile here if profiling is necessary
 
-def multi_process_test(models, environment, epochs):
-# Using a pool of workers equal to the number of cores, 4 cores
+def multi_process_test():
+    # Using a pool of workers equal to the number of cores, 4 cores
     with Pool(4) as pool:
-        # Start 4 separate tasks asynchronously
-        warm_up_rejections = []
-        for _ in range(4):
-            past_rejections = pool.apply_async(process_function, args=(models, environment, epochs))
-            warm_up_rejections.append(past_rejections)
-        # Close the pool and wait for the work to finish
-        pool.close()
-        pool.join()
-    return warm_up_rejections
+        pool.map(process_function)
 
 if __name__ == "__main__":
     multi_process_test()

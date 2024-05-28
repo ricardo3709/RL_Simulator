@@ -62,7 +62,7 @@ class ManhattanTrafficEnv(gym.Env):
         done = self.simulator.is_done()
         if done:
             return done, self.past_rejections
-        return done, None
+        return done
 
     def step(self, action):
         # calculate reward

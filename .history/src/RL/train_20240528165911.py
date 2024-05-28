@@ -104,8 +104,8 @@ def warm_up_train(models, environment, epochs = WARM_UP_EPOCHS):
             for step in tqdm(range(int(RL_STEP_LENGTH)), desc=f"WarmUP_{warm_up_step}"): # 2.5mins, 10 steps
                 environment.simulator.system_time += TIME_STEP
                 environment.simulator.run_cycle() # Run one cycle(15s)
-            done, past_rejections = environment.warm_up_step()
-    return past_rejections
+            done = environment.warm_up_step()
+
 
 if __name__ == "__main__":
     # Initialize environment

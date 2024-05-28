@@ -38,7 +38,7 @@ if __name__ == "__main__":
     for item in warm_up_rejections:
         for rej in item._value:
             total_warm_up_rej.append(rej)
-
-    environment.past_rejections.extend(total_warm_up_rej)
+            
+    environment.past_rejections.append(total_warm_up_rej)
     train(models, environment, epochs=100)
     # train(gnn_encoder, actor, critic, environment, epochs=100, optimizer=optimizer)

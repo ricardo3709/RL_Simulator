@@ -17,7 +17,7 @@ class ConfigManager:
             "NODE_LAYERS": 1, # number of layers of rejected rate to consider
             "MOVING_AVG_WINDOW": 12, # 3mins
             "DECAY_FACTOR": 0.9,
-            "RL_DURATION": 3600, # The entire duration of the RL simulation
+            "RL_DURATION": 300, # The entire duration of the RL simulation
         }
     def get(self, key):
         return self.settings[key]

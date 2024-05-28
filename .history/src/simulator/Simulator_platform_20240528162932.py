@@ -385,10 +385,7 @@ class Simulator_Platform(object):
                 avaliable_veh_nodes[veh.current_node-1] += 1
             elif veh.status == VehicleStatus.WORKING:
                 if veh.load < veh.capacity:
-                    if veh.target_node == None:
-                        working_veh_nodes[veh.route[0]-1] += 1
-                    else:
-                        working_veh_nodes[veh.target_node-1] += 1
+                    working_veh_nodes[veh.target_node-1] += 1
         
         gen_counts_nodes = self.num_of_generate_req_for_nodes_dict_movingAvg
         rej_counts_nodes = self.num_of_rejected_req_for_nodes_dict_movingAvg

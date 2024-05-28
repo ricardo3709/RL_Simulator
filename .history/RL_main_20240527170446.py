@@ -2,7 +2,6 @@ import torch
 from src.RL.models import GNN_Encoder,DDPG_Agent
 from src.RL.environment import ManhattanTrafficEnv
 from src.RL.train import train
-from multiprocessing_simulator import multi_process_test
 from torch_geometric.data import Data
 import numpy as np
 import os
@@ -32,13 +31,5 @@ if __name__ == "__main__":
     )
 
     # Train the model
-    warm_up_rejections = multi_process_test(models, environment, epochs = 1)
-
-    total_warm_up_rej = []
-    for item in warm_up_rejections:
-        for rej in item._value:
-            total_warm_up_rej.append(rej)
-
-    environment.past_rejections.extend(total_warm_up_rej)
     train(models, environment, epochs=100)
     # train(gnn_encoder, actor, critic, environment, epochs=100, optimizer=optimizer)

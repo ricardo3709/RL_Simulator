@@ -383,12 +383,9 @@ class Simulator_Platform(object):
         for veh in self.vehs:
             if veh.status == VehicleStatus.IDLE or veh.status == VehicleStatus.REBALANCING:
                 avaliable_veh_nodes[veh.current_node-1] += 1
-            elif veh.status == VehicleStatus.WORKING:
+            elif veh.status == VehicleStatus.PICKING:
                 if veh.load < veh.capacity:
-                    if veh.target_node == None:
-                        working_veh_nodes[veh.route[0]-1] += 1
-                    else:
-                        working_veh_nodes[veh.target_node-1] += 1
+                    working_veh_nodes[veh.target_node-1] += 1
         
         gen_counts_nodes = self.num_of_generate_req_for_nodes_dict_movingAvg
         rej_counts_nodes = self.num_of_rejected_req_for_nodes_dict_movingAvg

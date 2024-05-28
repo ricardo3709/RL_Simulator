@@ -14,16 +14,16 @@ if not os.path.exists(base_dir):
 def train(models, environment, epochs):
     gnn_encoder, ddpg_agent = models
 
-    # for epoch in range(WARM_UP_EPOCHS):
-    #     state, network = environment.reset()
-    #     done = False
-    #     warm_up_step = 0
-    #     while not done:
-    #         warm_up_step += 1
-    #         for step in tqdm(range(int(RL_STEP_LENGTH)), desc=f"WarmUP_{warm_up_step}"): # 2.5mins, 10 steps
-    #             environment.simulator.system_time += TIME_STEP
-    #             environment.simulator.run_cycle() # Run one cycle(15s)
-    #         done = environment.warm_up_step()
+    for epoch in range(WARM_UP_EPOCHS):
+        state, network = environment.reset()
+        done = False
+        warm_up_step = 0
+        while not done:
+            warm_up_step += 1
+            for step in tqdm(range(int(RL_STEP_LENGTH)), desc=f"WarmUP_{warm_up_step}"): # 2.5mins, 10 steps
+                environment.simulator.system_time += TIME_STEP
+                environment.simulator.run_cycle() # Run one cycle(15s)
+            done = environment.warm_up_step()
 
     for epoch in range(epochs):
         state, network = environment.reset()
@@ -92,20 +92,6 @@ def load_models(epoch, model):
     model.critic_target.load_state_dict(torch.load(f'critic_target_{epoch}.pth'))
     print("Models loaded successfully")
 
-def warm_up_train(models, environment, epochs = WARM_UP_EPOCHS):
-    gnn_encoder, ddpg_agent = models
-
-    for epoch in range(epochs):
-        state, network = environment.reset()
-        done = False
-        warm_up_step = 0
-        while not done:
-            warm_up_step += 1
-            for step in tqdm(range(int(RL_STEP_LENGTH)), desc=f"WarmUP_{warm_up_step}"): # 2.5mins, 10 steps
-                environment.simulator.system_time += TIME_STEP
-                environment.simulator.run_cycle() # Run one cycle(15s)
-            done, past_rejections = environment.warm_up_step()
-    return past_rejections
 
 if __name__ == "__main__":
     # Initialize environment
