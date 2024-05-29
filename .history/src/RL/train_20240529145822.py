@@ -30,7 +30,6 @@ def train(models, environment, epochs):
             edge_index = graph_to_data(network)
             total_critic_loss = 0
             total_actor_loss = 0
-            total_reward = 0
             done = False
             steps = 0
 
@@ -63,8 +62,7 @@ def train(models, environment, epochs):
             avg_reward = total_reward / steps
             # Log the loss
             config = ConfigManager()
-            theta = config.get('REWARD_THETA')
-            log_file.write(f"Epoch {epoch}: Avg Critic Loss = {avg_critic_loss}, Avg Actor Loss = {avg_actor_loss}, Avg Reward = {avg_reward}, Theta = {theta}\n")
+            log_file.write(f"Epoch {epoch}: Avg Critic Loss = {avg_critic_loss}, Avg Actor Loss = {avg_actor_loss}, Avg Reward = {avg_reward}\n")
     
     # Save the models
     save_models(epoch, ddpg_agent)

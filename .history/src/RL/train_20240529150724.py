@@ -62,8 +62,7 @@ def train(models, environment, epochs):
             avg_actor_loss = total_actor_loss / steps
             avg_reward = total_reward / steps
             # Log the loss
-            config = ConfigManager()
-            theta = config.get('REWARD_THETA')
+            theta = ConfigManager.get(ConfigManager, 'REWARD_THETA')
             log_file.write(f"Epoch {epoch}: Avg Critic Loss = {avg_critic_loss}, Avg Actor Loss = {avg_actor_loss}, Avg Reward = {avg_reward}, Theta = {theta}\n")
     
     # Save the models
