@@ -20,7 +20,7 @@ if __name__ == "__main__":
     max_action = float(environment.action_space.high[0])
 
     # Initialize models
-    gnn_encoder = GNN_Encoder(num_features=NUM_FEATURES, hidden_dim=64, output_dim=state_dim)
+    gnn_encoder = GNN_Encoder(num_features=6, hidden_dim=64, output_dim=state_dim)
     ddpg_agent = DDPG_Agent(state_dim=state_dim, action_dim=action_dim, max_action= max_action)
     # actor = Actor(state_dim=state_dim, action_dim=action_dim, max_action=max_action)
     # critic = Critic(state_dim=state_dim, action_dim=action_dim)

@@ -20,7 +20,7 @@ if __name__ == "__main__":
     max_action = float(environment.action_space.high[0])
 
     # Initialize models
-    gnn_encoder = GNN_Encoder(num_features=NUM_FEATURES, hidden_dim=64, output_dim=state_dim)
+    gnn_encoder = GNN_Encoder(num_features=6, hidden_dim=64, output_dim=state_dim)
     ddpg_agent = DDPG_Agent(state_dim=state_dim, action_dim=action_dim, max_action= max_action)
     # actor = Actor(state_dim=state_dim, action_dim=action_dim, max_action=max_action)
     # critic = Critic(state_dim=state_dim, action_dim=action_dim)
@@ -33,13 +33,13 @@ if __name__ == "__main__":
     )
 
     # Train the model
-    if WARM_UP_EPOCHS > 0:
-        warm_up_rejections = multi_process_test(models, environment, epochs = WARM_UP_EPOCHS)
-        total_warm_up_rej = []
-        for item in warm_up_rejections:
-            for rej in item._value:
-                total_warm_up_rej.append(rej)
-        environment.past_rejections.extend(total_warm_up_rej)
+    warm_up_rejections = multi_process_test(models, environment, epochs = WARM_UP_EPOCHS)
 
+    total_warm_up_rej = []
+    for item in warm_up_rejections:
+        for rej in item._value:
+            total_warm_up_rej.append(rej)
+
+    environment.past_rejections.extend(total_warm_up_rej)
     train(models, environment, epochs=100)
     # train(gnn_encoder, actor, critic, environment, epochs=100, optimizer=optimizer)

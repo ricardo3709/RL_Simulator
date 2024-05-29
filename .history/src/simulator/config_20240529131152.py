@@ -28,7 +28,7 @@ class ConfigManager:
 # Reinforcement Learning Config
 ##################################################################################
 RL_STEP_LENGTH = 10 # 2.5 mins, 10 steps
-WARM_UP_EPOCHS = 2
+WARM_UP_EPOCHS = 0
 REWARD_COEFFICIENT = 10000 
 NUM_FEATURES = 5
 ##################################################################################

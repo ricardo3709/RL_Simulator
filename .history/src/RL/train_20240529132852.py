@@ -42,7 +42,7 @@ def train(models, environment, epochs):
             # x = torch.tensor(state, dtype=torch.float) 
             graph_data = Data(x=x, edge_index=edge_index)
 
-            state_encoded = gnn_encoder(graph_data)  # encode the state (1,32)
+            state_encoded = gnn_encoder(graph_data)  # encode the state
             action = ddpg_agent.select_action(state_encoded)
             next_state, reward, done = environment.step(action)
 

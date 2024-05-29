@@ -42,7 +42,7 @@ def train(models, environment, epochs):
             # x = torch.tensor(state, dtype=torch.float) 
             graph_data = Data(x=x, edge_index=edge_index)
 
-            state_encoded = gnn_encoder(graph_data)  # encode the state (1,32)
+            state_encoded = gnn_encoder(graph_data)  # encode the state
             action = ddpg_agent.select_action(state_encoded)
             next_state, reward, done = environment.step(action)
 
@@ -69,12 +69,9 @@ def graph_to_data(network):
         network_array = network.values
     else:
         network_array = network
-
-    # Find the indices of non-zero elements, which correspond to edges
-    src_nodes, dst_nodes = np.nonzero(network_array)
-    edge_index = torch.tensor([src_nodes, dst_nodes], dtype=torch.long)
-    
-    # Ensure the result is in the correct shape (2, num_edges)
+    # only consider the non-zero elements
+    # edge_index = torch.tensor(np.nonzero(network_array != 0), dtype=torch.long)
+    edge_index = torch.tensor(network_array)
     return edge_index
 
 def save_models(epoch, model):

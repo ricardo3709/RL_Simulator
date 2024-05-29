@@ -16,7 +16,6 @@ def ilp_assignment(veh_trip_pairs: List[Tuple[Veh, List[Req], List[Tuple[int, in
                    num_of_generate_req_for_nodes_dict_movingAvg,
                    config: ConfigManager) -> List[int]:
     REWARD_THETA = config.get("REWARD_THETA")
-    print(f"using theta as: {REWARD_THETA}")
     # Create a new model
     # model = gp.Model("ilp")
     model = gp.Model("lp")
@@ -74,7 +73,7 @@ def ilp_assignment(veh_trip_pairs: List[Tuple[Veh, List[Req], List[Tuple[int, in
         
         cost = anticipatory_cost(veh_trip_pairs[i][2], veh_trip_pairs[i][0]) 
         reward = reward_function(veh_trip_pairs[i][2], veh_trip_pairs[i][0], num_of_rejected_req_for_nodes_dict_movingAvg, num_of_generate_req_for_nodes_dict_movingAvg, config)
-        anticipate_method_object_score = cost - float(REWARD_THETA) * reward
+        anticipate_method_object_score = cost - REWARD_THETA * reward
         object_score += veh_trip_pairs_check[i] * anticipate_method_object_score + (1.0 - veh_trip_pairs_check[i]) * PENALTY
 
     model.setObjective(object_score, GRB.MINIMIZE) #set the objective function to be minimized
