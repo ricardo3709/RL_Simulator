@@ -13,9 +13,9 @@ def feature_preparation(state):
     [avaliable_veh_nodes, working_veh_nodes, gen_counts_areas, rej_counts_areas, attraction_counts_areas] = state
 
     # request_gen_counts = [sum(gen_counts_areas[i]) for i in range(1,len(gen_counts_areas)+1)]
-    request_gen_counts = [sum(d)for d in gen_counts_areas.values()]
-    request_rej_counts = [sum(d)for d in rej_counts_areas.values()]
-    request_attraction_counts = [sum(d)for d in attraction_counts_areas.values()]
+    request_gen_counts = [d for d in gen_counts_areas.values()]
+    request_rej_counts = [sum(rej_counts_areas[i]) for i in range(1,len(rej_counts_areas)+1)]
+    request_attraction_counts = [sum(attraction_counts_areas[i]) for i in range(1,len(attraction_counts_areas)+1)]
 
     avaliable_veh_areas = np.zeros((63,2))
     avaliable_veh_areas[:,0] = area_ids
@@ -41,23 +41,23 @@ def feature_preparation(state):
         indice = np.where(working_veh_areas[:,0] == area_id)[0]
         working_veh_areas[indice,1] += counts
     
-    # for idx, counts in enumerate(request_gen_counts):
-    #     node_id = idx + 1 
-    #     area_id = node_lookup_table[node_lookup_table['node_id'] == node_id]['zone_id'].values[0]
-    #     indice = np.where(request_gen_counts_areas[:,0] == area_id)[0]
-    #     request_gen_counts_areas[indice,1] += counts
+    for idx, counts in enumerate(request_gen_counts):
+        node_id = idx + 1 
+        area_id = node_lookup_table[node_lookup_table['node_id'] == node_id]['zone_id'].values[0]
+        indice = np.where(request_gen_counts_areas[:,0] == area_id)[0]
+        request_gen_counts_areas[indice,1] += counts
     
-    # for idx, counts in enumerate(request_rej_counts):
-    #     node_id = idx + 1 
-    #     area_id = node_lookup_table[node_lookup_table['node_id'] == node_id]['zone_id'].values[0]
-    #     indice = np.where(request_rej_counts_areas[:,0] == area_id)[0]
-    #     request_rej_counts_areas[indice,1] += counts
+    for idx, counts in enumerate(request_rej_counts):
+        node_id = idx + 1 
+        area_id = node_lookup_table[node_lookup_table['node_id'] == node_id]['zone_id'].values[0]
+        indice = np.where(request_rej_counts_areas[:,0] == area_id)[0]
+        request_rej_counts_areas[indice,1] += counts
     
-    # for idx, counts in enumerate(request_attraction_counts):
-    #     node_id = idx + 1 
-    #     area_id = node_lookup_table[node_lookup_table['node_id'] == node_id]['zone_id'].values[0]
-    #     indice = np.where(request_attraction_counts_areas[:,0] == area_id)[0]
-    #     request_attraction_counts_areas[indice,1] += counts
+    for idx, counts in enumerate(request_attraction_counts):
+        node_id = idx + 1 
+        area_id = node_lookup_table[node_lookup_table['node_id'] == node_id]['zone_id'].values[0]
+        indice = np.where(request_attraction_counts_areas[:,0] == area_id)[0]
+        request_attraction_counts_areas[indice,1] += counts
 
     avaliable_veh_areas_col = torch.tensor(avaliable_veh_areas[:,1]).to(device)
     working_veh_areas_col = torch.tensor(working_veh_areas[:,1]).to(device)

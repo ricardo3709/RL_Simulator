@@ -1,0 +1,12 @@
+#!/bin/bash
+
+#PBS -P RDS-FEI-RICARDO_01-RW                
+#PBS -l select=1:ncpus=9:ngpus=1:mem=30GB
+#PBS -l walltime=24:00:00
+#PBS -N RL_Ricardo
+#PBS -m abe
+#PBS -M xwan0069@uni.sydney.edu.au
+
+module load python/3.9.15 magma/2.5.3 openmpi-gcc/3.1.5 cuda/10.2.89
+cd /project/RDS-FEI-RICARDO_01-RW/RL_Simulator
+mpirun -np 80 python RL_main.py> output.log 2> error.log

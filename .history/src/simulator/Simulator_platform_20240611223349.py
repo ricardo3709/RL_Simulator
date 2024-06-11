@@ -414,14 +414,10 @@ class Simulator_Platform(object):
     def is_warm_up_done(self):
         if self.system_time >= WARM_UP_DURATION:
             return True
-        else:
-            return False
         
     def is_done(self):
         if self.system_time >= self.end_time:
             return True
-        else:
-            return False
     
     def uniform_reset_simulator(self,):
         self.start_time = 0

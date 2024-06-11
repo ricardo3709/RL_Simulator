@@ -91,6 +91,3 @@ def get_surrounding_nodes(target_node, num_layers):
         connected_nodes.update(new_nodes)
     
     return connected_nodes
-
-def map_node_to_area(node_id):
-    return node_lookup_table[node_lookup_table['node_id'] == node_id]['zone_id'].values[0]

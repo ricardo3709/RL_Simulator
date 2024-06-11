@@ -199,8 +199,8 @@ class Simulator_Platform(object):
     def get_current_cycle_request(self, current_time ) -> list:
         current_cycle_requests = []
 
-        gen_reqs_per_areas_dict = {i: 0 for i in AREA_IDS} # {node_id: num_gen_req} used in reward calculation
-        attraction_per_areas_dict = {i: 0 for i in AREA_IDS} # {node_id: num_gen_req} used in reward calculation
+        gen_reqs_per_areas_dict = {i: 0 for i in range(1, NUM_NODES_MANHATTAN+1)} # {node_id: num_gen_req} used in reward calculation
+        attraction_per_areas_dict = {i: 0 for i in range(1, NUM_NODES_MANHATTAN+1)} # {node_id: num_gen_req} used in reward calculation
         
         for req in self.reqs:
             #EXP: to make it faster. Assume the requests are sorted by Req_time    
@@ -414,14 +414,10 @@ class Simulator_Platform(object):
     def is_warm_up_done(self):
         if self.system_time >= WARM_UP_DURATION:
             return True
-        else:
-            return False
         
     def is_done(self):
         if self.system_time >= self.end_time:
             return True
-        else:
-            return False
     
     def uniform_reset_simulator(self,):
         self.start_time = 0

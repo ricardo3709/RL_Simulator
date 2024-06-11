@@ -24,7 +24,7 @@ def train(models, environment, epochs):
                 environment.simulator.system_time += TIME_STEP
                 environment.simulator.run_cycle() # Run one cycle(15s)
                 system_time = environment.simulator.system_time
-            done, _ = environment.warm_up_step()
+            done = environment.warm_up_step()
 
     with open('training_log.txt', 'a') as log_file:
         for epoch in range(epochs):

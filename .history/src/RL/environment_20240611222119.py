@@ -21,7 +21,7 @@ class ManhattanTrafficEnv(gym.Env):
         self.config = ConfigManager()
         self.simulator = Simulator_Platform(0, self.config)  # Sim start time, ConfigManager
 
-        # self.n_steps_delay = (self.config.get("RL_DURATION")/(RL_STEP_LENGTH*TIME_STEP))*2 # delay for two whole simulation
+        self.n_steps_delay = (self.config.get("RL_DURATION")/(RL_STEP_LENGTH*TIME_STEP))*2 # delay for two whole simulation
         # self.past_actions = [deque(maxlen=self.n_steps_delay)]
         self.past_actions = []
         # self.past_rejections = deque(maxlen=self.n_steps_delay)
@@ -72,13 +72,11 @@ class ManhattanTrafficEnv(gym.Env):
         self.past_rejections.append(current_rejection_rate)
 
         
-        # if len(self.past_rejections) >= self.n_steps_delay: # delay is over
-        #     reward = self.calculate_reward(self.past_rejections)
+        if len(self.past_rejections) >= self.n_steps_delay: # delay is over
+            reward = self.calculate_reward(self.past_rejections)
 
-        # else:
-        #     reward = 0.0000001  # minimum reward until the delay is over
-        
-        reward = self.calculate_reward(self.past_rejections)
+        else:
+            reward = 0.0000001  # minimum reward until the delay is over
         print(f"Reward: {reward}")
 
         new_theta = self.simulator.update_theta(action)

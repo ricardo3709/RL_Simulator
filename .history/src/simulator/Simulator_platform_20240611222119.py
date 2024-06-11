@@ -199,8 +199,8 @@ class Simulator_Platform(object):
     def get_current_cycle_request(self, current_time ) -> list:
         current_cycle_requests = []
 
-        gen_reqs_per_areas_dict = {i: 0 for i in AREA_IDS} # {node_id: num_gen_req} used in reward calculation
-        attraction_per_areas_dict = {i: 0 for i in AREA_IDS} # {node_id: num_gen_req} used in reward calculation
+        gen_reqs_per_areas_dict = {i: 0 for i in range(1, NUM_NODES_MANHATTAN+1)} # {node_id: num_gen_req} used in reward calculation
+        attraction_per_areas_dict = {i: 0 for i in range(1, NUM_NODES_MANHATTAN+1)} # {node_id: num_gen_req} used in reward calculation
         
         for req in self.reqs:
             #EXP: to make it faster. Assume the requests are sorted by Req_time    
@@ -387,11 +387,11 @@ class Simulator_Platform(object):
                     else:
                         working_veh_nodes[veh.target_node-1] += 1
         
-        gen_counts_areas = self.num_of_generate_req_for_areas_dict_movingAvg
-        rej_counts_areas = self.num_of_rejected_req_for_areas_dict_movingAvg
-        attraction_counts_areas = self.num_of_attraction_for_areas_dict_movingAvg
+        gen_counts_nodes = self.num_of_generate_req_for_areas_dict_movingAvg
+        rej_counts_nodes = self.num_of_rejected_req_for_areas_dict_movingAvg
+        attraction_counts_nodes = self.num_of_attraction_for_areas_dict_movingAvg
 
-        state = [avaliable_veh_nodes, working_veh_nodes, gen_counts_areas, rej_counts_areas, attraction_counts_areas]
+        state = [avaliable_veh_nodes, working_veh_nodes, gen_counts_nodes, rej_counts_nodes, attraction_counts_nodes]
         state = feature_preparation(state)
 
         return state, network
@@ -414,14 +414,10 @@ class Simulator_Platform(object):
     def is_warm_up_done(self):
         if self.system_time >= WARM_UP_DURATION:
             return True
-        else:
-            return False
         
     def is_done(self):
         if self.system_time >= self.end_time:
             return True
-        else:
-            return False
     
     def uniform_reset_simulator(self,):
         self.start_time = 0

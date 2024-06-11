@@ -6,7 +6,7 @@ from src.dispatcher.ilp_assign import *
 from src.utility.utility_functions import *
 from src.simulator.Simulator_platform import *
 
-def assign_orders_through_sba(current_cycle_requests: List[Req], vehs: List[Veh], system_time: float, num_of_rejected_req_for_areas_dict_movingAvg: dict, num_of_generate_req_for_nodes_dict_movingAvg: dict, config: ConfigManager):
+def assign_orders_through_sba(current_cycle_requests: List[Req], vehs: List[Veh], system_time: float, num_of_rejected_req_for_nodes_dict_movingAvg: dict, num_of_generate_req_for_nodes_dict_movingAvg: dict, config: ConfigManager):
     if DEBUG_PRINT:
         print(f"        -Assigning {len(current_cycle_requests)} orders to vehicles through SBA...")
 
@@ -23,7 +23,7 @@ def assign_orders_through_sba(current_cycle_requests: List[Req], vehs: List[Veh]
     #3.1 Pruning the candidate veh-req pairs. (Empty Assign)
     # candidate_veh_req_pairs = prune_candidate_veh_req_pairs(candidate_veh_req_pairs)
     
-    selected_veh_req_pair_indices = ilp_assignment(candidate_veh_req_pairs, current_cycle_requests, considered_vehs, num_of_rejected_req_for_areas_dict_movingAvg, num_of_generate_req_for_nodes_dict_movingAvg, config)
+    selected_veh_req_pair_indices = ilp_assignment(candidate_veh_req_pairs, current_cycle_requests, considered_vehs, num_of_rejected_req_for_nodes_dict_movingAvg, num_of_generate_req_for_nodes_dict_movingAvg, config)
     # selected_veh_req_pair_indices = greedy_assignment(feasible_veh_req_pairs)
 
     # 000. Convert and store the vehicles' states at current epoch and their post-decision states as an experience.
@@ -35,7 +35,7 @@ def assign_orders_through_sba(current_cycle_requests: List[Req], vehs: List[Veh]
     # 4. Update the assigned vehicles' schedules and the assigned requests' statuses.
     assigned_reqs = upd_schedule_for_vehicles_in_selected_vt_pairs(candidate_veh_req_pairs, selected_veh_req_pair_indices)
     # 5. Immediate reject all request that are not assigned.
-    immediate_reject_unassigned_requests(current_cycle_requests, assigned_reqs, num_of_rejected_req_for_areas_dict_movingAvg, config)
+    immediate_reject_unassigned_requests(current_cycle_requests, assigned_reqs, num_of_rejected_req_for_nodes_dict_movingAvg, config)
 
 
     # if DEBUG_PRINT:
@@ -112,33 +112,30 @@ def prune_candidate_veh_req_pairs(candidate_veh_req_pairs):
 
     return pruned_vq_pair
 
-def immediate_reject_unassigned_requests(current_cycle_requests: List[Req], assigned_reqs: List[Req], num_of_rejected_req_for_areas_dict_movingAvg,config: ConfigManager):
+def immediate_reject_unassigned_requests(current_cycle_requests: List[Req], assigned_reqs: List[Req], num_of_rejected_req_for_nodes_dict_movingAvg,config: ConfigManager):
     if DEBUG_PRINT:
         print("                *Immediate rejecting unassigned orders...", end=" ")
     REWARD_TYPE = config.get('REWARD_TYPE')
     
     if REWARD_TYPE == 'REJ':
-        rej_reqs_per_areas_dict = {i: 0 for i in AREA_IDS} # {node_id: num_rej_req} used in reward calculation
+        rej_reqs_per_nodes_dict = {i: 0 for i in range(1, NUM_NODES_MANHATTAN+1)} # {node_id: num_rej_req} used in reward calculation
     for req in current_cycle_requests:
         if req not in assigned_reqs:
             req.Status = OrderStatus.REJECTED
             rej_node_id = req.Ori_id
             if REWARD_TYPE == 'REJ':
-                area_id = map_node_to_area(rej_node_id)
-                rej_reqs_per_areas_dict[area_id] += 1 #increment the number of rejected requests for the node
+                rej_reqs_per_nodes_dict[rej_node_id] += 1 #increment the number of rejected requests for the node
 
     if REWARD_TYPE == 'REJ':
-        for area_id in rej_reqs_per_areas_dict.keys():
-            num_of_rejected_req_for_areas_dict_movingAvg[area_id].append(rej_reqs_per_areas_dict[area_id])
-        # for node_id in range(1,NUM_NODES_MANHATTAN+1):
-        #     # if node_id in rej_reqs_per_areas_dict.keys():
-        #     #     num_of_rejected_req_for_areas_dict_movingAvg[node_id].append(rej_reqs_per_areas_dict[node_id])
-        #     # else:
-        #     #     num_of_rejected_req_for_areas_dict_movingAvg[node_id].append(0)
-        #     num_of_rejected_req_for_areas_dict_movingAvg[node_id].append(rej_reqs_per_areas_dict[node_id])
+        for node_id in range(1,NUM_NODES_MANHATTAN+1):
+            if node_id in rej_reqs_per_nodes_dict.keys():
+                num_of_rejected_req_for_nodes_dict_movingAvg[node_id].append(rej_reqs_per_nodes_dict[node_id])
+            else:
+                num_of_rejected_req_for_nodes_dict_movingAvg[node_id].append(0)
 
 
-# def update_rejection_rates(rej_reqs_per_nodes_dict, num_of_rejected_req_for_areas_dict_movingAvg):
+
+# def update_rejection_rates(rej_reqs_per_nodes_dict, num_of_rejected_req_for_nodes_dict_movingAvg):
 #     for node_id in range(1,NUM_NODES_MANHATTAN+1):
 #         if node_id in rej_reqs_per_nodes_dict.keys():
-#             num_of_rejected_req_for_areas_dict_movingAvg[node_id].append(rej_reqs_per_nodes_dict[node_id])
+#             num_of_rejected_req_for_nodes_dict_movingAvg[node_id].append(rej_reqs_per_nodes_dict[node_id])

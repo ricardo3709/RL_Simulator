@@ -13,7 +13,7 @@ if not os.path.exists(base_dir):
     os.makedirs(base_dir)
 def train(models, environment, epochs):
     gnn_encoder, ddpg_agent = models
-    system_time = 0.0
+
     while system_time < WARM_UP_DURATION:
         state, network = environment.reset()
         done = False
@@ -23,8 +23,7 @@ def train(models, environment, epochs):
             for step in tqdm(range(int(RL_STEP_LENGTH)), desc=f"WarmUP_{warm_up_step}"): # 2.5mins, 10 steps
                 environment.simulator.system_time += TIME_STEP
                 environment.simulator.run_cycle() # Run one cycle(15s)
-                system_time = environment.simulator.system_time
-            done, _ = environment.warm_up_step()
+            done = environment.warm_up_step()
 
     with open('training_log.txt', 'a') as log_file:
         for epoch in range(epochs):
