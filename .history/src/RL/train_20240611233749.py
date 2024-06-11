@@ -29,7 +29,7 @@ def train(models, environment, epochs):
     with open('training_log.txt', 'a') as log_file:
         for epoch in range(epochs):
             # state, network = environment.reset()
-            state, network = environment.simulator.get_simulator_state_by_areas()
+            state, network = environment.get_simulator_state_by_areas()
             edge_index = graph_to_data(network)
             total_critic_loss = 0
             total_actor_loss = 0

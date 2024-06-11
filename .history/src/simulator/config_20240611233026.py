@@ -19,7 +19,7 @@ class ConfigManager:
             "MOVING_AVG_WINDOW": 20, # 5mins
             "DECAY_FACTOR": 0.9,
             "RL_DURATION": 72000-3600, # The entire duration of the RL simulation
-            "LEARNING_WINDOW": 3600, # 30 mins
+            "LEARNING_WINDOW": 600, # 30 mins
         }
     def get(self, key):
         return self.settings[key]
@@ -31,8 +31,8 @@ class ConfigManager:
 ##################################################################################
 RL_STEP_LENGTH = 10 # 2.5 mins, 10 steps
 WARM_UP_EPOCHS = 0
-WARM_UP_DURATION = 3600 # 60 mins
-REWARD_COEFFICIENT = 100 
+WARM_UP_DURATION = 600 # 60 mins
+REWARD_COEFFICIENT = 10000 
 NUM_FEATURES = 5
 ##################################################################################
 # Data File Path
