@@ -18,7 +18,7 @@ class ConfigManager:
             "NODE_LAYERS": 1, # number of layers of rejected rate to consider
             "MOVING_AVG_WINDOW": 20, # 5mins
             "DECAY_FACTOR": 0.9,
-            "RL_DURATION": 72000-3600, # The entire duration of the RL simulation
+            "RL_DURATION": 72000, # The entire duration of the RL simulation
             "LEARNING_WINDOW": 1800, # 30 mins
         }
     def get(self, key):
@@ -55,10 +55,8 @@ PATH_MANHATTAN_ALL_PATH_MATRIX = f"{ROOT_PATH}/NYC/NYC_Manhattan_AllPathMatrix.p
 PATH_MANHATTAN_ALL_PATH_TIME_MATRIX = f"{ROOT_PATH}/NYC/NYC_Manhattan_AllPathTimeMatrix.pickle"
 PATH_MANHATTAN_CITYARC = f"{ROOT_PATH}/NYC/NYC_Manhattan_CityArc.pickle"
 PATH_MANHATTAN_REQUESTS = f"{ROOT_PATH}/NYC/NYC_Manhattan_Requests.csv"
-PATH_MANHATTAN_REQUESTS_COMBINED = f"{ROOT_PATH}/NYC/NYC_Andres_data/combined_file.csv"
 PATH_MANHATTAN_AREA_ADJ_MATRIX = f"{ROOT_PATH}/NYC/NYC_Manhattan_AREA_Adjacency_Matrix.pickle"
 PATH_MANHATTAN_NODES_LOOKUP_TABLE = f"{ROOT_PATH}/NYC/NYC_Manhattan_Nodes_Lookup_Table.csv"
-
 
 NUM_NODES_MANHATTAN = 4091
 
