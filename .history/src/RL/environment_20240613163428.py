@@ -32,7 +32,7 @@ class ManhattanTrafficEnv(gym.Env):
         self.old_avg_rej = 0.0
 
         # initialize the config
-        self.init_config({'REWARD_THETA': 1.0, 'REWARD_TYPE': 'REJ', 'NODE_LAYERS': 2, 'MOVING_AVG_WINDOW': 40, 'DECAY_FACTOR': 1.0})
+        self.init_config({'REWARD_THETA': 1.0, 'REWARD_TYPE': 'REJ', 'NODE_LAYERS': 2, 'MOVING_AVG_WINDOW': 40, 'DECAY_FACTOR': 0.9})
 
     def init_config(self, args: dict):
         self.change_config(self.config, args) # change the config based on the args 

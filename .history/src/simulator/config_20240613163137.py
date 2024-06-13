@@ -16,7 +16,7 @@ class ConfigManager:
             "REWARD_THETA": 1.0,
             "REWARD_TYPE": 'REJ',# or 'REJ'
             "NODE_LAYERS": 1, # number of layers of rejected rate to consider
-            "MOVING_AVG_WINDOW": 40, # 10mins
+            "MOVING_AVG_WINDOW": 20, # 5mins
             "DECAY_FACTOR": 0.9,
             "RL_DURATION": 72000-3600, # The entire duration of the RL simulation
             "LEARNING_WINDOW": 3600, # 30 mins
