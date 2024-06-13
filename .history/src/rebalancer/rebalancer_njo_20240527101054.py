@@ -1,6 +1,6 @@
 from src.simulator.Simulator_platform import *
 from src.rebalancer.rebalancer_ilp_assignment import *
-import random
+
 
 # rebalance vehicles to area of nearst rejected orders
 def rebalancer_njo(reqs: List[Req], vehs: List[Veh], system_time: float):
@@ -8,16 +8,10 @@ def rebalancer_njo(reqs: List[Req], vehs: List[Veh], system_time: float):
         print(f"    *Rebalancing idle vehicles to area of nearst rejected orders", end=" ")
     # get idle and rebalancing vehicles
     avaliable_vehs = [veh for veh in vehs if veh.status == VehicleStatus.IDLE or veh.status == VehicleStatus.REBALANCING]
-    
     # get rejected requests
-    # rejected_reqs = [req for req in reqs if req.Status == OrderStatus.REJECTED and req.Req_time > system_time - MAX_REBALANCE_CONSIDER]
     rejected_reqs = [req for req in reqs if req.Status == OrderStatus.REJECTED]
     if len(rejected_reqs) == 0: #no rejected requests
         return
-    
-    if len(rejected_reqs) > 2 * len(avaliable_vehs): #too many rejected requests
-        rejected_reqs = random.sample(rejected_reqs, 2 * len(avaliable_vehs))
-        print(f"    *Too many rejected requests, randomly select {2 * len(avaliable_vehs)} requests to consider")
     
     # 1. Compute all possible veh-req pairs, each indicating that the request can be served by the vehicle.
     candidate_veh_req_pairs, considered_vehs = compute_candidate_veh_req_pairs(rejected_reqs, avaliable_vehs, system_time)
@@ -33,43 +27,44 @@ def rebalancer_njo(reqs: List[Req], vehs: List[Veh], system_time: float):
 
 def compute_candidate_veh_req_pairs(reqs: List[Req], vehs:List[Veh], system_time: float) \
         -> List[Tuple[Veh, List[Req], List[Tuple[int, int, int, float]], float, float]]:    
+    if DEBUG_PRINT:
+        print("                *Computing candidate vehicle order pairs for rebalancing...", end=" ")
+
     # Each veh_req_pair = [veh, trip, sche, cost, score]
     candidate_veh_req_pairs = []
     considered_vehs = []
-    if HEURISTIC_ENABLE: 
-    # if False: 
+
     # 1. Compute all veh-req pairs for new received requests.
-        for req in reqs:
-            available_veh = []
-            for veh in vehs: 
-                # Check if the vehicle can reach the origin node before the MAX_DELAY_REBALANCE
-                time_to_origin = get_timeCost(veh.current_node, req.Ori_id)
-                if time_to_origin > MAX_DELAY_REBALANCE:
-                    continue
-                available_veh.append([veh, time_to_origin])
-
-            if len(available_veh) == 0: #no vehicle can reach the origin node before the MAX_DELAY_REBALANCE
+    for req in reqs:
+        available_veh = []
+        for veh in vehs: 
+            # Check if the vehicle can reach the origin node before the MAX_DELAY_REBALANCE
+            time_to_origin = get_timeCost(veh.current_node, req.Ori_id)
+            if time_to_origin > MAX_DELAY_REBALANCE:
                 continue
+            available_veh.append([veh, time_to_origin])
 
+        if len(available_veh) == 0: #no vehicle can reach the origin node before the MAX_DELAY_REBALANCE
+            continue
+
+        if HEURISTIC_ENABLE: # enable heuristic method to accelerate
+            # if too many vehicles, we can use a heuristic to reduce the number of vehicles to consider
             if len(available_veh) > MAX_NUM_VEHICLES_TO_CONSIDER:
                 available_veh.sort(key = lambda x: x[1])
                 available_veh = available_veh[:MAX_NUM_VEHICLES_TO_CONSIDER]
 
             # Delete time to origin and add vehicle to considered_vehs
             available_veh = [available_veh[0] for available_veh in available_veh]
-            considered_vehs.extend(available_veh)    
-    
-            # All other vehicles are able to serve current request, find best schedule for each vehicle.
-            for veh in available_veh:
-                best_sche, cost = compute_schedule(veh, req)
-                candidate_veh_req_pairs.append([veh, req, best_sche, cost, 0.0]) #vt_pair = [veh, trip, sche, cost, score]
-    else:
-        considered_vehs = vehs
-        for req in reqs:
-            for veh in vehs:
-                best_sche, cost = compute_schedule(veh, req)
-                candidate_veh_req_pairs.append([veh, req, best_sche, cost, 0.0]) #vt_pair = [veh, trip, sche, cost, score]
-            
+            considered_vehs.extend(available_veh)   
+
+        else: # disable heuristic method, modify data structure
+            available_veh = [available_veh[0] for available_veh in available_veh]
+
+        # All other vehicles are able to serve current request, find best schedule for each vehicle.
+        for veh in available_veh:
+            best_sche, cost = compute_schedule(veh, req)
+            candidate_veh_req_pairs.append([veh, req, best_sche, cost, 0.0]) #vt_pair = [veh, trip, sche, cost, score]
+
     return candidate_veh_req_pairs, considered_vehs
 
 def compute_schedule(veh: Veh, req: Req):

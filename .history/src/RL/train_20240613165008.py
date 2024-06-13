@@ -29,9 +29,8 @@ def train(models, environment, epochs):
     with open('training_log.txt', 'a') as log_file:
         for epoch in range(epochs):
             # read reqs file from beginning
-            if environment.simulator.system_time > SIMULATION_DURATION:
+            if environment.simulator.system_time >= SIMULATION_DURATION:
                 environment.simulator.system_time = 0
-                environment.simulator.reset_veh_time()
             # state, network = environment.reset()
             state, network = environment.simulator.get_simulator_state_by_areas()
             edge_index = graph_to_data(network)
