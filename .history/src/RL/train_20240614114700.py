@@ -15,8 +15,8 @@ if not os.path.exists(base_dir):
     os.makedirs(base_dir)
 def train(models, environment, epochs):
     gnn_encoder, ddpg_agent = models
-#   gnn_encoder = gnn_encoder.to(device)
-#   ddpg_agent = ddpg_agent.to(device)
+    # gnn_encoder = gnn_encoder.to(device)
+    # ddpg_agent = ddpg_agent.to(device)
     system_time = 0.0
     while system_time < WARM_UP_DURATION:
         state, network = environment.reset()
