@@ -18,8 +18,8 @@ class ConfigManager:
             "NODE_LAYERS": 1, # number of layers of rejected rate to consider
             "MOVING_AVG_WINDOW": 40, # 10mins
             "DECAY_FACTOR": 0.9,
-            "RL_DURATION": 3600, # The epoch length
-            "LEARNING_WINDOW": 3600, # 60 mins
+            "RL_DURATION": 3600*20, # The entire duration of the RL simulation
+            "LEARNING_WINDOW": 3600, # 30 mins
         }
     def get(self, key):
         return self.settings[key]

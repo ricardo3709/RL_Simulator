@@ -41,7 +41,6 @@ class Simulator_Platform(object):
         self.total_time_step = RL_DURATION // TIME_STEP
         self.accumulated_request = []
         self.rejected_reqs = []
-        self.last_req_ID = 0
         # Use deque to achieve moving average. 12 means 3 minutes
         MOVING_AVG_WINDOW = self.config.get("MOVING_AVG_WINDOW")    
         self.num_of_generate_req_for_areas_dict_movingAvg = {i: deque(maxlen=MOVING_AVG_WINDOW) for i in AREA_IDS} # {area_id: generate_req} used in reward calculation
@@ -55,12 +54,12 @@ class Simulator_Platform(object):
         self.reqs = []
 
         if MAP_NAME == 'Manhattan': # [ReqID Oid Did ReqTime Size]
-            # print(f"[INFO] Randomly Loading ManhattanData...")
-            self.req_loader(0,0)
-            # reqs = pd.read_csv(PATH_MANHATTAN_REQUESTS_COMBINED)
-            # reqs_data = reqs.to_numpy()
-            # for i in range(reqs_data.shape[0]):
-            #     self.reqs.append(Req(int(reqs_data[i, 0]), int(reqs_data[i, 1]), int(reqs_data[i, 2]), int(reqs_data[i, 3]), int(reqs_data[i,4])))
+            print(f"[INFO] Loading ManhattanData...")
+            reqs = pd.read_csv(PATH_MANHATTAN_REQUESTS_COMBINED)
+            # reqs = pd.read_csv(PATH_TEMP_REQ)
+            reqs_data = reqs.to_numpy()
+            for i in range(reqs_data.shape[0]):
+                self.reqs.append(Req(int(reqs_data[i, 0]), int(reqs_data[i, 1]), int(reqs_data[i, 2]), int(reqs_data[i, 3]), int(reqs_data[i,4])))
             print(f"[INFO] Requests Initialization finished")
 
             for i in range(FLEET_SIZE[0]):
@@ -218,9 +217,7 @@ class Simulator_Platform(object):
         for area_id in gen_reqs_per_areas_dict.keys():
             self.num_of_generate_req_for_areas_dict_movingAvg[area_id].append(gen_reqs_per_areas_dict[area_id])
             self.num_of_attraction_for_areas_dict_movingAvg[area_id].append(attraction_per_areas_dict[area_id])
-        
-        self.last_req_ID = current_cycle_requests[-1].Req_ID
-
+            
         return current_cycle_requests
 
     def get_availiable_vehicels(self) -> list: #vehicle should has at least 1 capacity
@@ -353,24 +350,19 @@ class Simulator_Platform(object):
         for veh in self.vehs:
             veh.veh_time = 0
 
-    def req_loader(self, current_sim_time, last_req_ID):
+    def req_loader(current_sim_time, last_req_ID):
         PATH_REQUESTS = f"{ROOT_PATH}/NYC/NYC_Andres_data/"
         FILE_NAME = "NYC_Manhattan_Requests_size3_day"
 
         random_day = np.random.randint(1, 11)
         SELECTED_FILE = FILE_NAME + str(random_day) + '.csv'
-        # TEMP_FILE_NAME = 'temp_req.csv'
+        TEMP_FILE_NAME = 'temp_req.csv'
 
         with open(os.path.join(PATH_REQUESTS, SELECTED_FILE), 'r') as f:
             temp_req_matrix = pd.read_csv(f)
         temp_req_matrix['ReqID'] += last_req_ID
         temp_req_matrix['ReqTime'] += current_sim_time
-        # temp_req_matrix.to_csv(os.path.join(PATH_REQUESTS, TEMP_FILE_NAME))
-
-        reqs_data = temp_req_matrix.to_numpy()
-        for i in range(reqs_data.shape[0]):
-            self.reqs.append(Req(int(reqs_data[i, 0]), int(reqs_data[i, 1]), int(reqs_data[i, 2]), int(reqs_data[i, 3]), int(reqs_data[i,4])))
-        print(f"[INFO] Randomly Loading ManhattanData: day{random_day}")
+        temp_req_matrix.to_csv(os.path.join(PATH_REQUESTS, TEMP_FILE_NAME))
 #--------------------------------------------------------------------------------
 # Below are RL related functions
 
@@ -442,9 +434,7 @@ class Simulator_Platform(object):
             return False
         
     def is_done(self):
-        RL_DURATION = self.config.get("RL_DURATION")
         if self.system_time >= self.end_time:
-            self.end_time += RL_DURATION
             return True
         else:
             return False

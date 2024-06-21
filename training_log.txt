@@ -98,3 +98,12 @@ Epoch 96: Avg Critic Loss = 381.6943234329422, Avg Actor Loss = 0.32587124283115
 Epoch 97: Avg Critic Loss = 456.60581445073086, Avg Actor Loss = 0.32502230691413087, Avg Reward = -10.12788972277812, Theta = 1.0
 Epoch 98: Avg Critic Loss = 2374.65358988444, Avg Actor Loss = 0.32501535055538017, Avg Reward = -48.679164480229495, Theta = 1.0
 Epoch 99: Avg Critic Loss = 1441.2399134409304, Avg Actor Loss = 0.3263894741733869, Avg Reward = -25.822496867385016, Theta = 1.0
+Epoch 0: Avg Critic Loss = 1.5778957605361938, Avg Actor Loss = -0.07017446309328079, Avg Reward = -1.2534811637584853, Theta = [[1.0073695]]
+Epoch 1: Avg Critic Loss = 6.01348352432251, Avg Actor Loss = -0.06798624992370605, Avg Reward = -2.4517320281858046, Theta = [[1.0149817]]
+Epoch 2: Avg Critic Loss = 12.145585060119629, Avg Actor Loss = -0.06795161217451096, Avg Reward = -3.486185580520307, Theta = [[1.022797]]
+Epoch 3: Avg Critic Loss = 19.05075454711914, Avg Actor Loss = -0.06951054185628891, Avg Reward = -4.363444121948157, Theta = [[1.0303673]]
+Epoch 4: Avg Critic Loss = 25.98462677001953, Avg Actor Loss = -0.06874560564756393, Avg Reward = -5.097705105938932, Theta = [[1.0380229]]
+Epoch 5: Avg Critic Loss = 32.602787017822266, Avg Actor Loss = -0.06943068653345108, Avg Reward = -5.7065865552200945, Theta = [[1.0454843]]
+Epoch 6: Avg Critic Loss = 38.8538932800293, Avg Actor Loss = -0.06661871820688248, Avg Reward = -6.231045260534529, Theta = [[1.0529734]]
+Epoch 7: Avg Critic Loss = 44.57670211791992, Avg Actor Loss = -0.06483439356088638, Avg Reward = -6.676458748276115, Theta = [[1.0603186]]
+Epoch 8: Avg Critic Loss = 49.84458923339844, Avg Actor Loss = -0.06519486755132675, Avg Reward = -7.05985654466491, Theta = [[1.0676198]]

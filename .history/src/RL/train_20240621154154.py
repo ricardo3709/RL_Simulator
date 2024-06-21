@@ -32,16 +32,11 @@ def train(models, environment, epochs):
 
     with open('training_log.txt', 'a') as log_file:
         for epoch in range(epochs):
-            current_sim_time = environment.simulator.system_time
-            last_req_ID = environment.simulator.last_req_ID
-            environment.simulator.req_loader(current_sim_time, last_req_ID)
-
             # read reqs file from beginning
-            # if environment.simulator.system_time > SIMULATION_DURATION:
-            #     environment.simulator.system_time = 0
-            #     environment.simulator.reset_veh_time()
+            if environment.simulator.system_time > SIMULATION_DURATION:
+                environment.simulator.system_time = 0
+                environment.simulator.reset_veh_time()
             # state, network = environment.reset()
-
             state, network = environment.simulator.get_simulator_state_by_areas()
             edge_index = graph_to_data(network)
             total_critic_loss = 0
@@ -54,7 +49,6 @@ def train(models, environment, epochs):
                 for step in tqdm(range(int(RL_STEP_LENGTH))): # 2.5mins, 10 steps
                     environment.simulator.system_time += TIME_STEP
                     environment.simulator.run_cycle() # Run one cycle(15s)
-                
                 # state, _ = environment.simulator.get_simulator_state()
                 x = state.clone().detach().requires_grad_(True)
                 x = x.to(device)

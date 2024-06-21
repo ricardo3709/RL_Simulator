@@ -55,12 +55,12 @@ class Simulator_Platform(object):
         self.reqs = []
 
         if MAP_NAME == 'Manhattan': # [ReqID Oid Did ReqTime Size]
-            # print(f"[INFO] Randomly Loading ManhattanData...")
-            self.req_loader(0,0)
-            # reqs = pd.read_csv(PATH_MANHATTAN_REQUESTS_COMBINED)
-            # reqs_data = reqs.to_numpy()
-            # for i in range(reqs_data.shape[0]):
-            #     self.reqs.append(Req(int(reqs_data[i, 0]), int(reqs_data[i, 1]), int(reqs_data[i, 2]), int(reqs_data[i, 3]), int(reqs_data[i,4])))
+            print(f"[INFO] Loading ManhattanData...")
+            reqs = pd.read_csv(PATH_MANHATTAN_REQUESTS_COMBINED)
+            # reqs = pd.read_csv(PATH_TEMP_REQ)
+            reqs_data = reqs.to_numpy()
+            for i in range(reqs_data.shape[0]):
+                self.reqs.append(Req(int(reqs_data[i, 0]), int(reqs_data[i, 1]), int(reqs_data[i, 2]), int(reqs_data[i, 3]), int(reqs_data[i,4])))
             print(f"[INFO] Requests Initialization finished")
 
             for i in range(FLEET_SIZE[0]):
@@ -359,7 +359,7 @@ class Simulator_Platform(object):
 
         random_day = np.random.randint(1, 11)
         SELECTED_FILE = FILE_NAME + str(random_day) + '.csv'
-        # TEMP_FILE_NAME = 'temp_req.csv'
+        TEMP_FILE_NAME = 'temp_req.csv'
 
         with open(os.path.join(PATH_REQUESTS, SELECTED_FILE), 'r') as f:
             temp_req_matrix = pd.read_csv(f)
@@ -370,7 +370,6 @@ class Simulator_Platform(object):
         reqs_data = temp_req_matrix.to_numpy()
         for i in range(reqs_data.shape[0]):
             self.reqs.append(Req(int(reqs_data[i, 0]), int(reqs_data[i, 1]), int(reqs_data[i, 2]), int(reqs_data[i, 3]), int(reqs_data[i,4])))
-        print(f"[INFO] Randomly Loading ManhattanData: day{random_day}")
 #--------------------------------------------------------------------------------
 # Below are RL related functions
 
@@ -442,9 +441,7 @@ class Simulator_Platform(object):
             return False
         
     def is_done(self):
-        RL_DURATION = self.config.get("RL_DURATION")
         if self.system_time >= self.end_time:
-            self.end_time += RL_DURATION
             return True
         else:
             return False

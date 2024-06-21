@@ -442,9 +442,7 @@ class Simulator_Platform(object):
             return False
         
     def is_done(self):
-        RL_DURATION = self.config.get("RL_DURATION")
         if self.system_time >= self.end_time:
-            self.end_time += RL_DURATION
             return True
         else:
             return False

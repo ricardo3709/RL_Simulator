@@ -37,11 +37,10 @@ def train(models, environment, epochs):
             environment.simulator.req_loader(current_sim_time, last_req_ID)
 
             # read reqs file from beginning
-            # if environment.simulator.system_time > SIMULATION_DURATION:
-            #     environment.simulator.system_time = 0
-            #     environment.simulator.reset_veh_time()
+            if environment.simulator.system_time > SIMULATION_DURATION:
+                environment.simulator.system_time = 0
+                environment.simulator.reset_veh_time()
             # state, network = environment.reset()
-
             state, network = environment.simulator.get_simulator_state_by_areas()
             edge_index = graph_to_data(network)
             total_critic_loss = 0

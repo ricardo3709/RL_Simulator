@@ -359,7 +359,7 @@ class Simulator_Platform(object):
 
         random_day = np.random.randint(1, 11)
         SELECTED_FILE = FILE_NAME + str(random_day) + '.csv'
-        # TEMP_FILE_NAME = 'temp_req.csv'
+        TEMP_FILE_NAME = 'temp_req.csv'
 
         with open(os.path.join(PATH_REQUESTS, SELECTED_FILE), 'r') as f:
             temp_req_matrix = pd.read_csv(f)
@@ -442,9 +442,7 @@ class Simulator_Platform(object):
             return False
         
     def is_done(self):
-        RL_DURATION = self.config.get("RL_DURATION")
         if self.system_time >= self.end_time:
-            self.end_time += RL_DURATION
             return True
         else:
             return False

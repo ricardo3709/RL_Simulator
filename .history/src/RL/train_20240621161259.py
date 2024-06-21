@@ -41,7 +41,7 @@ def train(models, environment, epochs):
             #     environment.simulator.system_time = 0
             #     environment.simulator.reset_veh_time()
             # state, network = environment.reset()
-
+            
             state, network = environment.simulator.get_simulator_state_by_areas()
             edge_index = graph_to_data(network)
             total_critic_loss = 0
