@@ -9,7 +9,7 @@ def rebalancer_njo(reqs: List[Req], vehs: List[Veh], system_time: float):
     # get idle and rebalancing vehicles
     avaliable_vehs = [veh for veh in vehs if veh.status == VehicleStatus.IDLE or veh.status == VehicleStatus.REBALANCING]
     
-    # get rejected requests from last 1 hour
+    # get rejected requests
     rejected_reqs = [req for req in reqs if req.Status == OrderStatus.REJECTED and req.Req_time > system_time - MAX_REBALANCE_CONSIDER]
     # rejected_reqs = [req for req in reqs if req.Status == OrderStatus.REJECTED]
     if len(rejected_reqs) == 0: #no rejected requests

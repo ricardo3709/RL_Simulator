@@ -169,4 +169,4 @@ if __name__ == "__main__":
     )
 
     # Train the model
-    train(gnn_encoder, actor, critic, environment, epochs=1000, optimizer=optimizer)
+    train(gnn_encoder, actor, critic, environment, epochs=100, optimizer=optimizer)
