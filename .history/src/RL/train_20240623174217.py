@@ -30,7 +30,7 @@ def train(models, environment, epochs):
                 system_time = environment.simulator.system_time
             done, _ = environment.warm_up_step()
 
-    with open('training_log.txt', 'w') as log_file:
+    with open('./training_log.txt', 'w') as log_file:
         for epoch in range(epochs):
             current_sim_time = environment.simulator.system_time
             last_req_ID = environment.simulator.last_req_ID
