@@ -129,7 +129,7 @@ class DDPG_Agent(nn.Module):
             self.critic_optimizer.step()
 
             # 计算 Actor 的损失，但不立即进行反向传播
-            actor_loss = -self.critic(state_encoded.detach(), self.actor(state_encoded.detach())).mean()
+            actor_loss = -self.critic(state_encoded, self.actor(state_encoded.detach())).mean()
 
             # 然后对 Actor 进行反向传播
             self.actor_optimizer.zero_grad()

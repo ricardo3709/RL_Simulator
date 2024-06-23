@@ -48,7 +48,7 @@ class DDPG_Agent(nn.Module):
 
         # Optimizer with different learning rates
         self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=actor_learning_rate)
-        self.critic_optimizer = optim.Adam(list(self.critic.parameters()) + list(self.gnn_encoder.parameters()), lr=critic_learning_rate)
+        self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=critic_learning_rate)
 
         # Target networks
         self.actor_target = Actor(state_dim, action_dim, max_action)
@@ -120,16 +120,15 @@ class DDPG_Agent(nn.Module):
         # actor_loss.backward()
         # self.actor_optimizer.step()
         with torch.autograd.set_detect_anomaly(True):
+            # 计算 Actor 的损失，但不立即进行反向传播
+            actor_loss = -self.critic(state_encoded, self.actor(state_encoded)).mean().clone()
 
             # 接着计算 Critic 的损失并进行反向传播
-            current_Q = self.critic(state_encoded, action)
+            current_Q = self.critic(state_encoded, action).clone()
             critic_loss = F.mse_loss(current_Q, target_Q)
             self.critic_optimizer.zero_grad()
-            critic_loss.backward(retain_graph=True)
+            critic_loss.backward()
             self.critic_optimizer.step()
-
-            # 计算 Actor 的损失，但不立即进行反向传播
-            actor_loss = -self.critic(state_encoded.detach(), self.actor(state_encoded.detach())).mean()
 
             # 然后对 Actor 进行反向传播
             self.actor_optimizer.zero_grad()
@@ -159,7 +158,6 @@ class Actor(nn.Module):
         self.max_action = max_action
 
     def forward(self, actor_x):
-        actor_x = actor_x.to(device)
         actor_x = torch.relu(self.layer1(actor_x))
         actor_x = torch.relu(self.layer2(actor_x))
         actor_x = torch.tanh(self.layer3(actor_x)) * self.max_action
@@ -173,8 +171,6 @@ class Critic(nn.Module):
         self.layer3 = nn.Linear(300, 1)
 
     def forward(self, critic_x, u):
-        critic_x = critic_x.to(device)
-        u = u.to(device)
         critic_x = torch.cat([critic_x, u], 1)
         critic_x = torch.relu(self.layer1(critic_x))
         critic_x = torch.relu(self.layer2(critic_x))

@@ -48,7 +48,7 @@ class DDPG_Agent(nn.Module):
 
         # Optimizer with different learning rates
         self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=actor_learning_rate)
-        self.critic_optimizer = optim.Adam(list(self.critic.parameters()) + list(self.gnn_encoder.parameters()), lr=critic_learning_rate)
+        self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=critic_learning_rate)
 
         # Target networks
         self.actor_target = Actor(state_dim, action_dim, max_action)
@@ -129,7 +129,7 @@ class DDPG_Agent(nn.Module):
             self.critic_optimizer.step()
 
             # 计算 Actor 的损失，但不立即进行反向传播
-            actor_loss = -self.critic(state_encoded.detach(), self.actor(state_encoded.detach())).mean()
+            actor_loss = -self.critic(state_encoded, self.actor(state_encoded)).mean()
 
             # 然后对 Actor 进行反向传播
             self.actor_optimizer.zero_grad()
