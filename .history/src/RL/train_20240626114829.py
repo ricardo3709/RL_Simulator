@@ -52,7 +52,6 @@ def train(models, environment, epochs):
             steps = 0
 
             while not done:
-                environment.simulator.current_cycle_rej_rate = [] # reset the rejection rate to record the new cycle
                 for step in tqdm(range(int(RL_STEP_LENGTH))): # 2.5mins, 10 steps
                     environment.simulator.system_time += TIME_STEP
                     environment.simulator.run_cycle() # Run one cycle(15s)

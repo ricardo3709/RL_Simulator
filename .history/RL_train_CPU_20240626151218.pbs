@@ -10,4 +10,4 @@
 module load python/3.8.2 magma/2.5.3 pandas/2.0.3 gurobi/9.1.2
 source /project/RDS-FEI-RICARDO_01-RW/envs/torchenv/bin/activate
 cd /project/RDS-FEI-RICARDO_01-RW/RL_Simulator
-python RL_main.py> output_1.log 2> error_1.log
+python RL_main.py> output.log 2> error.log

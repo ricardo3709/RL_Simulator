@@ -74,6 +74,7 @@ class ManhattanTrafficEnv(gym.Env):
         current_rejection_rate = np.mean(self.simulator.current_cycle_rej_rate)
         self.past_rejections.append(current_rejection_rate)
 
+        
         # if len(self.past_rejections) >= self.n_steps_delay: # delay is over
         #     reward = self.calculate_reward(self.past_rejections)
 
@@ -83,7 +84,6 @@ class ManhattanTrafficEnv(gym.Env):
         reward = self.calculate_reward(self.past_rejections)
         print(f"Reward: {reward}")
         print(f"current rejection rate: {current_rejection_rate}")
-        print(f"current action: {action}")
 
         new_theta = self.simulator.update_theta(action)
         

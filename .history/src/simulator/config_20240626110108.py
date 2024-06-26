@@ -20,7 +20,7 @@ class ConfigManager:
             "DECAY_FACTOR": 0.9,
             "RL_DURATION": 3600, # The epoch length
             "LEARNING_WINDOW": 1800, # 30 mins
-            "CONSIDER_NUM_CYCLES": 4, #num of last cycles to consider in reward calculation, 10 mins
+            "CONSIDER_NUM_CYCLES": 3, #num of last cycles to consider in reward calculation
         }
     def get(self, key):
         return self.settings[key]

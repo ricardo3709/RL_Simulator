@@ -438,12 +438,12 @@ class Simulator_Platform(object):
             elif req.Status == OrderStatus.PENDING:
                 total_pending_requests += 1
 
-        assert(total_pending_requests == 0)        
+        assert(total_pending_requests != 0)        
         
         if total_picked_requests == 0:
             return -1e9  # Large negative reward
         
-        current_cycle_rejection_rate = total_rejected_requests/(total_picked_requests+total_rejected_requests)
+        current_cycle_rejection_rate = total_rejected_requests/total_picked_requests
         return current_cycle_rejection_rate
 
     def is_warm_up_done(self):

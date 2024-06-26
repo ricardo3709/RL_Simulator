@@ -31,9 +31,6 @@ class ManhattanTrafficEnv(gym.Env):
 
         self.old_avg_rej = 0.0
 
-        self.Rmax = 0.5 # maximum reward
-        self.Rmin = -0.5 # minimum reward
-
         # initialize the config
         self.init_config({'REWARD_THETA': 5.0, 'REWARD_TYPE': 'REJ', 'NODE_LAYERS': 2, 'MOVING_AVG_WINDOW': 40, 'DECAY_FACTOR': 1.0})
 
@@ -60,7 +57,7 @@ class ManhattanTrafficEnv(gym.Env):
             config.set(variable, value)
 
     def warm_up_step(self):
-        current_rejection_rate = np.mean(self.simulator.current_cycle_rej_rate)
+        current_rejection_rate = self.simulator.get_rej_rate()
         self.past_rejections.append(current_rejection_rate)
         done = self.simulator.is_warm_up_done()
         if done:
@@ -71,9 +68,10 @@ class ManhattanTrafficEnv(gym.Env):
         # calculate reward
         # record the past actions and rejections
         self.past_actions.append(action)
-        current_rejection_rate = np.mean(self.simulator.current_cycle_rej_rate)
+        current_rejection_rate = self.simulator.get_rej_rate()
         self.past_rejections.append(current_rejection_rate)
 
+        
         # if len(self.past_rejections) >= self.n_steps_delay: # delay is over
         #     reward = self.calculate_reward(self.past_rejections)
 
@@ -82,8 +80,6 @@ class ManhattanTrafficEnv(gym.Env):
 
         reward = self.calculate_reward(self.past_rejections)
         print(f"Reward: {reward}")
-        print(f"current rejection rate: {current_rejection_rate}")
-        print(f"current action: {action}")
 
         new_theta = self.simulator.update_theta(action)
         
@@ -104,28 +100,22 @@ class ManhattanTrafficEnv(gym.Env):
     def calculate_reward(self, past_rejections):
         LEARNING_WINDOW = self.config.get('LEARNING_WINDOW')
         CONSIDER_NUM_CYCLES = self.config.get('CONSIDER_NUM_CYCLES')
-        CYCLE_WINDOW = int(LEARNING_WINDOW/(RL_STEP_LENGTH*TIME_STEP))
 
         cycle_reward = 0.0
-        old_avg_rej = np.mean(past_rejections[-CYCLE_WINDOW*2 : -CYCLE_WINDOW]) # last 60mins to last 30mins
-        current_avg_rej = np.mean(past_rejections[-CYCLE_WINDOW:]) # last 30mins
+        old_avg_rej = np.mean(past_rejections[:int(LEARNING_WINDOW/(RL_STEP_LENGTH*TIME_STEP))])
+        current_avg_rej = np.mean(past_rejections[int(-LEARNING_WINDOW/(RL_STEP_LENGTH*TIME_STEP)):])
         current_cycle_rej = past_rejections[-1]
 
-        cycle_weight = 0.7
-        long_weight = 0.3
-
-        for cycle in range(1, CONSIDER_NUM_CYCLES+1):
+        for cycle in range(1, CONSIDER_NUM_CYCLES):
             last_cycle_rej = past_rejections[-(cycle+1)]
-            cycle_reward += (last_cycle_rej - current_cycle_rej) * (self.decay_factor ** cycle)
+            cycle_reward += (last_cycle_rej - current_cycle_rej)
         # # Calculate reward based on past rejections
         # for i in range(len(past_rejections)-1): 
         #     old_avg_rej += past_rejections[i] * (self.decay_factor ** i) 
         # reward = old_avg_rej - current_rej # reward is positive if the current rejection rate is lower than the past average
         long_reward = (old_avg_rej - current_avg_rej) 
-        combined_reward = cycle_weight * cycle_reward + long_weight * long_reward
-        normalized_reward = 2 * ((combined_reward - self.Rmin) / (self.Rmax - self.Rmin)) - 1
-
-        return normalized_reward
+        reward = (long_reward + cycle_reward) * REWARD_COEFFICIENT
+        return reward
 
     # def render(self, mode='console'):
     #     if mode == 'console':

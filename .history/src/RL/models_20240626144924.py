@@ -57,7 +57,7 @@ class DDPG_Agent(nn.Module):
         self.critic_target.load_state_dict(self.critic.state_dict())
 
         # Discount factor, higher value means higher importance to future rewards
-        self.discount = 0.8
+        self.discount = 0.99
 
         # tau is the soft update parameter, higher value means higher importance to new weights
         # self.tau = 0.001
