@@ -440,9 +440,6 @@ class Simulator_Platform(object):
 
         assert(total_pending_requests == 0)        
         
-        if total_picked_requests == 0:
-            return -1e9  # Large negative reward
-        
         current_cycle_rejection_rate = total_rejected_requests/(total_picked_requests+total_rejected_requests)
         return current_cycle_rejection_rate
 

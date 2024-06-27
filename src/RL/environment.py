@@ -111,6 +111,9 @@ class ManhattanTrafficEnv(gym.Env):
         current_avg_rej = np.mean(past_rejections[-CYCLE_WINDOW:]) # last 30mins
         current_cycle_rej = past_rejections[-1]
 
+        if current_cycle_rej > 1: #bug handle
+            return 0.0
+
         cycle_weight = 0.7
         long_weight = 0.3
 
