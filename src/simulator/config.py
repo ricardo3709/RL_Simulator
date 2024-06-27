@@ -32,7 +32,7 @@ class ConfigManager:
 ##################################################################################
 RL_STEP_LENGTH = 10 # 2.5 mins, 10 steps
 WARM_UP_EPOCHS = 0
-WARM_UP_DURATION = 3600 # 60 mins
+WARM_UP_DURATION = 0 # 60 mins
 REWARD_COEFFICIENT = 100 
 NUM_FEATURES = 5
 ##################################################################################
