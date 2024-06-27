@@ -82,6 +82,7 @@ class DDPG_Agent(nn.Module):
         noise = self.noise.noise().numpy()  # Ensure noise is also a numpy array
         noise = np.expand_dims(noise, 0)  # Make noise the same shape as action
         action += noise  # Add noise for exploration
+        action = np.clip(action, -0.1, 0.1)  # Ensure action is within bounds
 
         self.actor.train()  # Set the actor network back to training mode
         return action
@@ -207,4 +208,4 @@ class OUNoise:
         x = self.state
         dx = self.theta * (self.mu - x) + self.sigma * np.random.randn(len(x))
         self.state = x + dx
-        return torch.clamp(torch.tensor(self.state * self.scale).float(), min=-0.05, max=0.05)
+        return torch.tensor(self.state * self.scale).float()

@@ -207,4 +207,4 @@ class OUNoise:
         x = self.state
         dx = self.theta * (self.mu - x) + self.sigma * np.random.randn(len(x))
         self.state = x + dx
-        return torch.clamp(torch.tensor(self.state * self.scale).float(), min=-0.05, max=0.05)
+        return torch.tensor(self.state * self.scale).float()
