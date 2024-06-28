@@ -100,8 +100,13 @@ class ManhattanTrafficEnv(gym.Env):
         self.simulator.uniform_reset_simulator()
         self.state, network = self.simulator.get_simulator_state_by_areas()
         return self.state, network
-
+    
     def calculate_reward(self, past_rejections):
+        if len(past_rejections) < 2:
+            return 0.0
+        return past_rejections[-2] - past_rejections[-1]
+    
+    def calculate_reward_ori(self, past_rejections):
         LEARNING_WINDOW = self.config.get('LEARNING_WINDOW')
         CONSIDER_NUM_CYCLES = self.config.get('CONSIDER_NUM_CYCLES')
         CYCLE_WINDOW = int(LEARNING_WINDOW/(RL_STEP_LENGTH*TIME_STEP))
@@ -114,8 +119,8 @@ class ManhattanTrafficEnv(gym.Env):
         if current_cycle_rej > 1: #bug handle
             return 0.0
 
-        cycle_weight = 0.7
-        long_weight = 0.3
+        cycle_weight = 0.9
+        long_weight = 0.1
 
         for cycle in range(1, CONSIDER_NUM_CYCLES+1):
             last_cycle_rej = past_rejections[-(cycle+1)]

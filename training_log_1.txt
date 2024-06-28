@@ -1,2 +1,0 @@
-Epoch 0: Avg Critic Loss = 0.0003335117071401328, Avg Actor Loss = -0.2809487581253052, Avg Reward = 0.017913262510588446, Theta = [[5.008432]]
-Epoch 1: Avg Critic Loss = 0.043752562340436583, Avg Actor Loss = -0.0019853336169667864, Avg Reward = 0.012165053398711531, Theta = [[4.856863]]

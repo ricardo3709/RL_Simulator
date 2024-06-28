@@ -3,6 +3,7 @@ constants are found here
 """
 import pickle
 import os
+import pandas as pd
 from dateutil.parser import parse
 
 ##################################################################################
@@ -12,12 +13,14 @@ from dateutil.parser import parse
 class ConfigManager:
     def __init__(self):
         self.settings = {
-            "REWARD_THETA": 1.0,
-            "REWARD_TYPE": 'GEN',# or 'REJ'
+            "REWARD_THETA": 5.0,
+            "REWARD_TYPE": 'REJ',# or 'REJ'
             "NODE_LAYERS": 1, # number of layers of rejected rate to consider
-            "MOVING_AVG_WINDOW": 12, # 3mins
+            "MOVING_AVG_WINDOW": 40, # 10mins
             "DECAY_FACTOR": 0.9,
-            "RL_DURATION": 300, # The entire duration of the RL simulation
+            "RL_DURATION": 3600, # The epoch length
+            "LEARNING_WINDOW": 1800, # 30 mins
+            "CONSIDER_NUM_CYCLES": 4, #num of last cycles to consider in reward calculation, 10 mins
         }
     def get(self, key):
         return self.settings[key]
@@ -28,7 +31,10 @@ class ConfigManager:
 # Reinforcement Learning Config
 ##################################################################################
 RL_STEP_LENGTH = 10 # 2.5 mins, 10 steps
-WARM_UP_EPOCHS = 2
+WARM_UP_EPOCHS = 0
+WARM_UP_DURATION = 3600 # 60 mins
+REWARD_COEFFICIENT = 100 
+NUM_FEATURES = 5
 ##################################################################################
 # Data File Path
 ##################################################################################
@@ -50,10 +56,15 @@ PATH_MANHATTAN_ALL_PATH_MATRIX = f"{ROOT_PATH}/NYC/NYC_Manhattan_AllPathMatrix.p
 PATH_MANHATTAN_ALL_PATH_TIME_MATRIX = f"{ROOT_PATH}/NYC/NYC_Manhattan_AllPathTimeMatrix.pickle"
 PATH_MANHATTAN_CITYARC = f"{ROOT_PATH}/NYC/NYC_Manhattan_CityArc.pickle"
 PATH_MANHATTAN_REQUESTS = f"{ROOT_PATH}/NYC/NYC_Manhattan_Requests.csv"
+PATH_MANHATTAN_REQUESTS_COMBINED = f"{ROOT_PATH}/NYC/NYC_Andres_data/combined_file_size3.csv"
 PATH_MANHATTAN_AREA_ADJ_MATRIX = f"{ROOT_PATH}/NYC/NYC_Manhattan_AREA_Adjacency_Matrix.pickle"
 PATH_MANHATTAN_NODES_LOOKUP_TABLE = f"{ROOT_PATH}/NYC/NYC_Manhattan_Nodes_Lookup_Table.csv"
+PATH_TEMP_REQ = f"{ROOT_PATH}/NYC/NYC_Andres_data/temp_req.csv"
 
 NUM_NODES_MANHATTAN = 4091
+
+node_lookup_table = pd.read_csv(PATH_MANHATTAN_NODES_LOOKUP_TABLE)
+AREA_IDS = node_lookup_table['zone_id'].unique().astype(int)
 
 ##################################################################################
 # Mod System Config
@@ -72,7 +83,7 @@ HEURISTIC_ENABLE = True
 
 # for Manhattan-data
 FLEET_SIZE = [1000]
-VEH_CAPACITY = [6]
+VEH_CAPACITY = [3]
 
 MAX_PICKUP_WAIT_TIME = 5*60 # 5 min
 MAX_DETOUR_TIME = 10*60 # 10 min
@@ -82,10 +93,9 @@ MAX_SCHEDULE_LENGTH = 30
 
 MAX_DELAY_REBALANCE = 10*60 # 10 min
 
-PENALTY = 800.0 #penalty for ignoring a request
-REBALANCER_PENALTY = 800.0 #penalty for ignoring a request in rebalancer
-
-# MOVING_AVG_WINDOW = 12 # 3mins
+PENALTY = 0.9 #penalty for ignoring a request
+REBALANCER_PENALTY = 80000.0 #penalty for ignoring a request in rebalancer
+MAX_REBALANCE_CONSIDER = 3600
 
 ##################################################################################
 # Anticipatory ILP Config
@@ -110,7 +120,7 @@ DEBUG_PRINT = False
 # PENALTY = 5.0 #penalty for ignoring a request
 
 # for Manhattan-data
-SIMULATION_DURATION = 3600 # 60 minutes = 3600 seconds
+SIMULATION_DURATION = 3600*20 # 60 minutes = 3600 seconds
 TIME_STEP = 15 # 15 seconds
 COOL_DOWN_DURATION = 3600 # 20 minutes = 1200 seconds
 
