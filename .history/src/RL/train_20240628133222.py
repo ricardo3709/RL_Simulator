@@ -8,43 +8,71 @@ import os
 from src.simulator.config import *
 from tqdm import tqdm
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 base_dir = 'saved_models'
+
 if not os.path.exists(base_dir):
     os.makedirs(base_dir)
 def train(models, environment, epochs):
     gnn_encoder, ddpg_agent = models
+#   gnn_encoder = gnn_encoder.to(device)
+#   ddpg_agent = ddpg_agent.to(device)
+    system_time = 0.0
+    while system_time < WARM_UP_DURATION:
+        state, network = environment.reset()
+        done = False
+        warm_up_step = 0
+        while not done:
+            warm_up_step += 1
+            environment.simulator.current_cycle_rej_rate = [] # reset the rejection rate to record the new cycle
+            for step in tqdm(range(int(RL_STEP_LENGTH)), desc=f"WarmUP_{warm_up_step}"): # 2.5mins, 10 steps
+                environment.simulator.system_time += TIME_STEP
+                environment.simulator.run_cycle() # Run one cycle(15s)
+                system_time = environment.simulator.system_time
+            done, _ = environment.warm_up_step()
 
-    # for epoch in range(WARM_UP_EPOCHS):
-    #     state, network = environment.reset()
-    #     done = False
-    #     warm_up_step = 0
-    #     while not done:
-    #         warm_up_step += 1
-    #         for step in tqdm(range(int(RL_STEP_LENGTH)), desc=f"WarmUP_{warm_up_step}"): # 2.5mins, 10 steps
-    #             environment.simulator.system_time += TIME_STEP
-    #             environment.simulator.run_cycle() # Run one cycle(15s)
-    #         done = environment.warm_up_step()
-    with open('training_log.txt', 'a') as log_file:
+    with open('training_log_1.txt', 'w') as log_file:
         for epoch in range(epochs):
-            state, network = environment.reset()
+            current_sim_time = environment.simulator.system_time
+            last_req_ID = environment.simulator.last_req_ID
+            environment.simulator.req_loader(current_sim_time, last_req_ID)
+
+            # read reqs file from beginning
+            # if environment.simulator.system_time > SIMULATION_DURATION:
+            #     environment.simulator.system_time = 0
+            #     environment.simulator.reset_veh_time()
+            # state, network = environment.reset()
+
+            state, network = environment.simulator.get_simulator_state_by_areas()
             edge_index = graph_to_data(network)
             total_critic_loss = 0
             total_actor_loss = 0
+            total_reward = 0
             done = False
             steps = 0
 
+            action_seed = np.random.randint(0, 6)
+
             while not done:
+                environment.simulator.current_cycle_rej_rate = [] # reset the rejection rate to record the new cycle
                 for step in tqdm(range(int(RL_STEP_LENGTH))): # 2.5mins, 10 steps
                     environment.simulator.system_time += TIME_STEP
                     environment.simulator.run_cycle() # Run one cycle(15s)
+                
                 # state, _ = environment.simulator.get_simulator_state()
                 x = state.clone().detach().requires_grad_(True)
+                x = x.to(device)
                 # x = torch.tensor(state, dtype=torch.float) 
                 graph_data = Data(x=x, edge_index=edge_index)
 
                 state_encoded = gnn_encoder(graph_data)  # encode the state (1,32)
                 action = ddpg_agent.select_action(state_encoded)
-                next_state, reward, done = environment.step(action)
+
+                real_action = action_generator(action_seed)
+                next_state, reward, done, new_theta = environment.step(real_action)
+
+                prev_rej = environment.pass_rejections[-2]
+                data_loger(next_state, reward, action, prev_rej)
 
                 # Update the model, get the loss
                 critic_loss, actor_loss = ddpg_agent.update_policy(state, action, reward, next_state, edge_index)
@@ -61,8 +89,8 @@ def train(models, environment, epochs):
             avg_actor_loss = total_actor_loss / steps
             avg_reward = total_reward / steps
             # Log the loss
-            theta = ConfigManager.get('REWARD_THETA')
-            log_file.write(f"Epoch {epoch}: Avg Critic Loss = {avg_critic_loss}, Avg Actor Loss = {avg_actor_loss}, Avg Reward = {avg_reward}, Theta = {theta}\n")
+            log_file.write(f"Epoch {epoch}: Avg Critic Loss = {avg_critic_loss}, Avg Actor Loss = {avg_actor_loss}, Avg Reward = {avg_reward}, Theta = {new_theta}\n")
+            log_file.flush()
     
     # Save the models
     save_models(epoch, ddpg_agent)
@@ -77,6 +105,7 @@ def graph_to_data(network):
     # Find the indices of non-zero elements, which correspond to edges
     src_nodes, dst_nodes = np.nonzero(network_array)
     edge_index = torch.tensor([src_nodes, dst_nodes], dtype=torch.long)
+    edge_index = edge_index.to(device)
     
     # Ensure the result is in the correct shape (2, num_edges)
     return edge_index
@@ -115,6 +144,21 @@ def warm_up_train(models, environment, epochs = WARM_UP_EPOCHS):
             done, past_rejections = environment.warm_up_step()
     return past_rejections
 
+def req_loader(current_sim_time, last_req_ID):
+    PATH_REQUESTS = f"{ROOT_PATH}/NYC/NYC_Andres_data/"
+    FILE_NAME = "NYC_Manhattan_Requests_size3_day"
+
+    random_day = np.random.randint(1, 11)
+    SELECTED_FILE = FILE_NAME + str(random_day) + '.csv'
+    TEMP_FILE_NAME = 'temp_req.csv'
+
+    with open(os.path.join(PATH_REQUESTS, SELECTED_FILE), 'r') as f:
+        temp_req_matrix = pd.read_csv(f)
+    temp_req_matrix['ReqID'] += last_req_ID
+    temp_req_matrix['ReqTime'] += current_sim_time
+    temp_req_matrix.to_csv(os.path.join(PATH_REQUESTS, TEMP_FILE_NAME))
+
+
 if __name__ == "__main__":
     # Initialize environment
     environment = ManhattanTrafficEnv()
@@ -135,4 +179,19 @@ if __name__ == "__main__":
     )
 
     # Train the model
-    train(gnn_encoder, actor, critic, environment, epochs=100, optimizer=optimizer)
+    train(gnn_encoder, actor, critic, environment, epochs=1000, optimizer=optimizer)
+
+def data_loger(next_state, reward, action, prev_rej):
+    # next_state: tensor[63,6], reward: float, action: float, prev_rej: float
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()  # 获取当前进程的 ID
+    filename = f'data_log_{rank}.npy'  # 每个进程写入不同的文件
+    with open(filename, 'ab') as f:
+        np.save(f, np.array([next_state, action, reward, prev_rej]))
+        f.flush()
+
+def action_generator(action_seed):
+    # action_seed: int
+    # return: float
+    policy = {0: 0.01, 1: 0.05, 2: 0.1, 3: -0.01, 4: -0.05, 5: -0.1}
+    return policy[action_seed]

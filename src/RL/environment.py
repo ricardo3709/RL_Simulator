@@ -96,8 +96,8 @@ class ManhattanTrafficEnv(gym.Env):
 
     def reset(self):
         # random reset simulator
-        # self.simulator.random_reset_simulator()
-        self.simulator.uniform_reset_simulator()
+        self.simulator.random_reset_simulator()
+        # self.simulator.uniform_reset_simulator()
         self.state, network = self.simulator.get_simulator_state_by_areas()
         return self.state, network
 

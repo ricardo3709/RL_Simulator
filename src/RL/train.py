@@ -1,4 +1,3 @@
-from mpi4py import MPI
 import torch
 from src.RL.models import GNN_Encoder, Actor, Critic
 from src.RL.environment import ManhattanTrafficEnv
@@ -189,6 +188,7 @@ def data_loger(next_state, reward, action, prev_rej):
     filename = f'data_log_{rank}.npy'  # 每个进程写入不同的文件
     with open(filename, 'ab') as f:
         np.save(f, np.array([next_state, action, reward, prev_rej]))
+        f.flush()
 
 def action_generator(action_seed):
     # action_seed: int
