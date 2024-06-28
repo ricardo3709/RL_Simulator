@@ -102,10 +102,6 @@ class ManhattanTrafficEnv(gym.Env):
         return self.state, network
 
     def calculate_reward(self, past_rejections):
-        reward = past_rejections[-2] - past_rejections[-1]
-        return reward
-    
-    def calculate_reward_ori(self, past_rejections):
         LEARNING_WINDOW = self.config.get('LEARNING_WINDOW')
         CONSIDER_NUM_CYCLES = self.config.get('CONSIDER_NUM_CYCLES')
         CYCLE_WINDOW = int(LEARNING_WINDOW/(RL_STEP_LENGTH*TIME_STEP))

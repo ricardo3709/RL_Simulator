@@ -1,3 +1,4 @@
+from mpi4py import MPI
 import torch
 from src.RL.models import GNN_Encoder,DDPG_Agent
 from src.RL.environment import ManhattanTrafficEnv
