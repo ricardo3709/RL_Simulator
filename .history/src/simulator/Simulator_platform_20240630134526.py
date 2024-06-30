@@ -472,7 +472,7 @@ class Simulator_Platform(object):
     def update_theta(self,action):
         old_theta = self.config.get("REWARD_THETA")
         new_theta = old_theta + action
-        new_theta = np.maximum(new_theta, 0.0)  # Ensure theta is non-negative
+        new_theta = torch.clamp(new_theta, min=0.0)  # Ensure theta is non-negative
         
         self.config.set("REWARD_THETA", new_theta)
         print(f"Updating REWARD_THETA from {old_theta} to {new_theta}")
