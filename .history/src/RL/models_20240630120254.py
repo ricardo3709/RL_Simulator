@@ -19,36 +19,8 @@ actor_learning_rate = 1e-4
 critic_learning_rate = 1e-3
 
 class GNN_Encoder(nn.Module):
-    def __init__(self, num_features=NUM_FEATURES*2, hidden_dim=64, output_dim=32):
-        super(GNN_Encoder, self).__init__()
-        self.conv1 = GCNConv(num_features, hidden_dim)
-        self.conv2 = GCNConv(hidden_dim, hidden_dim)
-        self.conv3 = GCNConv(hidden_dim, output_dim)
-        self.pool = global_mean_pool  # Global mean pooling, to aggregate node features into graph features
-
-    def forward(self, data, last_rej_rate):
-        x, edge_index = data.x, data.edge_index
-        x = x.float().to(device)
-        edge_index = edge_index.to(device)
-        x = torch.relu(self.conv1(x, edge_index))
-        x = torch.relu(self.conv2(x, edge_index))
-        x = torch.relu(self.conv3(x, edge_index))
-        pooled_x = self.pool(x, torch.zeros(x.size(0), dtype=torch.long, device=x.device))
-
-        #cat rej
-        # Ensure rejection_rate is a tensor and on the correct device
-        rejection_rate = torch.tensor([last_rej_rate], dtype=torch.float32, device=x.device)
-        # Expand rejection_rate to match batch size
-        rejection_rate = rejection_rate.expand(pooled_x.size(0), -1)
-        # Concatenate pooled_x and rejection_rate
-        output = torch.cat((pooled_x, rejection_rate), dim=-1)
-        # output dim = state_dim + 1
-
-        return output
-
-class GNN_Encoder_seperate(nn.Module):
     def __init__(self, num_features=NUM_FEATURES, hidden_dim=64, output_dim=32):
-        super(GNN_Encoder_seperate, self).__init__()
+        super(GNN_Encoder, self).__init__()
         self.conv1 = GCNConv(num_features, hidden_dim)
         self.conv2 = GCNConv(hidden_dim, hidden_dim)
         self.conv3 = GCNConv(hidden_dim, output_dim)
@@ -81,8 +53,7 @@ class DDPG_Agent(nn.Module):
         self.actor = Actor(state_dim + 1, action_dim, max_action)  # state_dim + 1 to account for rejection rate
         self.critic = Critic(state_dim + 1, action_dim) # state_dim is the output dimension from GNN without rejection rate
 
-        self.gnn_encoder = GNN_Encoder(num_features=NUM_FEATURES*2, hidden_dim=64, output_dim=state_dim)
-        self.gnn_encoder_seperate = GNN_Encoder_seperate(num_features=NUM_FEATURES, hidden_dim=64, output_dim=state_dim)
+        self.gnn_encoder = GNN_Encoder(num_features=NUM_FEATURES, hidden_dim=64, output_dim=state_dim)
 
         # Optimizer with different learning rates
         self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=actor_learning_rate)
@@ -124,7 +95,7 @@ class DDPG_Agent(nn.Module):
         self.actor.train()  # Set the actor network back to training mode
         return action
 
-    def update_policy(self, action, reward, current_state, last_state, edge_index, last_rej_rate):
+    def update_policy(self, action, reward, current_state, last_state, edge_index):
 
         if not isinstance(action, torch.Tensor):
             action = torch.FloatTensor(action)
@@ -145,8 +116,8 @@ class DDPG_Agent(nn.Module):
 
         graph_current_state = Data(x=current_state, edge_index=edge_index)
         graph_last_state = Data(x=last_state, edge_index=edge_index)
-        current_state_encoded = self.gnn_encoder_seperate(graph_current_state,last_rej_rate)
-        last_state_encoded = self.gnn_encoder_seperate(graph_last_state,last_rej_rate)
+        current_state_encoded = self.gnn_encoder(graph_current_state)
+        last_state_encoded = self.gnn_encoder(graph_last_state)
 
 
         # Calculate target Q

@@ -63,7 +63,9 @@ class ManhattanTrafficEnv(gym.Env):
         current_rejection_rate = np.mean(self.simulator.current_cycle_rej_rate)
         self.past_rejections.append(current_rejection_rate)
         done = self.simulator.is_warm_up_done()
-        return done
+        if done:
+            return done, self.past_rejections
+        return done, None
 
     def step(self, action):
         # calculate reward
@@ -90,14 +92,14 @@ class ManhattanTrafficEnv(gym.Env):
         
         done = self.simulator.is_done()
 
-        return reward, done, new_theta
+        return self.state, reward, done, new_theta
 
     def reset(self):
         # random reset simulator
         # self.simulator.random_reset_simulator()
         self.simulator.uniform_reset_simulator()
-        self.state = self.simulator.get_simulator_state_by_areas()
-        return self.state
+        self.state, network = self.simulator.get_simulator_state_by_areas()
+        return self.state, network
     
     def calculate_reward(self, past_rejections):
         if len(past_rejections) < 2:

@@ -48,7 +48,7 @@ class GNN_Encoder(nn.Module):
 
 class GNN_Encoder_seperate(nn.Module):
     def __init__(self, num_features=NUM_FEATURES, hidden_dim=64, output_dim=32):
-        super(GNN_Encoder_seperate, self).__init__()
+        super(GNN_Encoder, self).__init__()
         self.conv1 = GCNConv(num_features, hidden_dim)
         self.conv2 = GCNConv(hidden_dim, hidden_dim)
         self.conv3 = GCNConv(hidden_dim, output_dim)

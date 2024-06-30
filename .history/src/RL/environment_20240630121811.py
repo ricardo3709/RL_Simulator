@@ -63,7 +63,9 @@ class ManhattanTrafficEnv(gym.Env):
         current_rejection_rate = np.mean(self.simulator.current_cycle_rej_rate)
         self.past_rejections.append(current_rejection_rate)
         done = self.simulator.is_warm_up_done()
-        return done
+        if done:
+            return done, self.past_rejections
+        return done, None
 
     def step(self, action):
         # calculate reward

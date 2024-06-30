@@ -399,7 +399,7 @@ class Simulator_Platform(object):
         state = feature_preparation(state)
         return state, network
     
-    def get_simulator_network_by_areas(self,):
+    def get_simulator_network(self,):
         with open(PATH_MANHATTAN_AREA_ADJ_MATRIX, 'rb') as a:
             network = pickle.load(a)
         return network

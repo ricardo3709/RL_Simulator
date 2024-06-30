@@ -27,7 +27,7 @@ if __name__ == "__main__":
     # actor = Actor(state_dim=state_dim, action_dim=action_dim, max_action=max_action)
     # critic = Critic(state_dim=state_dim, action_dim=action_dim)
 
-    models = (gnn_encoder,gnn_encoder_seperate,ddpg_agent)
+    models = (gnn_encoder,ddpg_agent)
 
     # Setup optimizer
     optimizer = torch.optim.Adam(

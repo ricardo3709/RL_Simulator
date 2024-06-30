@@ -19,6 +19,7 @@ def train(models, environment, epochs):
 #   ddpg_agent = ddpg_agent.to(device)
     system_time = 0.0
     while system_time < WARM_UP_DURATION:
+        state, network = environment.reset()
         done = False
         warm_up_step = 0
         while not done:
@@ -28,7 +29,7 @@ def train(models, environment, epochs):
                 environment.simulator.system_time += TIME_STEP
                 environment.simulator.run_cycle() # Run one cycle(15s)
                 system_time = environment.simulator.system_time
-            done = environment.warm_up_step()
+            done, _ = environment.warm_up_step()
 
     with open('training_log_1.txt', 'w') as log_file:
         for epoch in range(epochs):

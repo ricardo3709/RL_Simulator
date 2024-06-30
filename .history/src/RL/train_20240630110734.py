@@ -14,11 +14,12 @@ base_dir = 'saved_models'
 if not os.path.exists(base_dir):
     os.makedirs(base_dir)
 def train(models, environment, epochs):
-    gnn_encoder, gnn_encoder_seperate, ddpg_agent = models
+    gnn_encoder, ddpg_agent = models
 #   gnn_encoder = gnn_encoder.to(device)
 #   ddpg_agent = ddpg_agent.to(device)
     system_time = 0.0
     while system_time < WARM_UP_DURATION:
+        state, network = environment.reset()
         done = False
         warm_up_step = 0
         while not done:
@@ -28,7 +29,7 @@ def train(models, environment, epochs):
                 environment.simulator.system_time += TIME_STEP
                 environment.simulator.run_cycle() # Run one cycle(15s)
                 system_time = environment.simulator.system_time
-            done = environment.warm_up_step()
+            done, _ = environment.warm_up_step()
 
     with open('training_log_1.txt', 'w') as log_file:
         for epoch in range(epochs):
@@ -43,8 +44,6 @@ def train(models, environment, epochs):
             # state, network = environment.reset()
 
             network = environment.simulator.get_simulator_network_by_areas()
-            current_state = None
-            last_rej_rate = 0
             edge_index = graph_to_data(network)
             total_critic_loss = 0
             total_actor_loss = 0
@@ -58,11 +57,6 @@ def train(models, environment, epochs):
                     environment.simulator.system_time += TIME_STEP
                     environment.simulator.run_cycle() # Run one cycle(15s)
                 
-                if len(environment.past_rejections) < 2:
-                    last_rej_rate = 0.0
-                else: 
-                    last_rej_rate = environment.past_rejections[-2]
-
                 #Record last state and current state, cat them to form the input
                 if current_state == None:
                     last_state = torch.zeros((63,5))
@@ -78,12 +72,12 @@ def train(models, environment, epochs):
                 # x = torch.tensor(state, dtype=torch.float) 
                 graph_data = Data(x=x, edge_index=edge_index)
 
-                state_encoded = gnn_encoder(graph_data, last_rej_rate)  # encode the state (1,32)
+                state_encoded = gnn_encoder(graph_data)  # encode the state (1,32)
                 action = ddpg_agent.select_action(state_encoded)
                 reward, done, new_theta = environment.step(action)
 
                 # Update the model, get the loss
-                critic_loss, actor_loss = ddpg_agent.update_policy(action, reward, current_state, last_state, edge_index, last_rej_rate)
+                critic_loss, actor_loss = ddpg_agent.update_policy(state, action, reward, state_encoded, edge_index)
 
                 # Logging
                 total_critic_loss += critic_loss

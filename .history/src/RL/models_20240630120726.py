@@ -48,7 +48,7 @@ class GNN_Encoder(nn.Module):
 
 class GNN_Encoder_seperate(nn.Module):
     def __init__(self, num_features=NUM_FEATURES, hidden_dim=64, output_dim=32):
-        super(GNN_Encoder_seperate, self).__init__()
+        super(GNN_Encoder, self).__init__()
         self.conv1 = GCNConv(num_features, hidden_dim)
         self.conv2 = GCNConv(hidden_dim, hidden_dim)
         self.conv3 = GCNConv(hidden_dim, output_dim)
@@ -81,8 +81,7 @@ class DDPG_Agent(nn.Module):
         self.actor = Actor(state_dim + 1, action_dim, max_action)  # state_dim + 1 to account for rejection rate
         self.critic = Critic(state_dim + 1, action_dim) # state_dim is the output dimension from GNN without rejection rate
 
-        self.gnn_encoder = GNN_Encoder(num_features=NUM_FEATURES*2, hidden_dim=64, output_dim=state_dim)
-        self.gnn_encoder_seperate = GNN_Encoder_seperate(num_features=NUM_FEATURES, hidden_dim=64, output_dim=state_dim)
+        self.gnn_encoder = GNN_Encoder(num_features=NUM_FEATURES, hidden_dim=64, output_dim=state_dim)
 
         # Optimizer with different learning rates
         self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=actor_learning_rate)
@@ -145,8 +144,8 @@ class DDPG_Agent(nn.Module):
 
         graph_current_state = Data(x=current_state, edge_index=edge_index)
         graph_last_state = Data(x=last_state, edge_index=edge_index)
-        current_state_encoded = self.gnn_encoder_seperate(graph_current_state,last_rej_rate)
-        last_state_encoded = self.gnn_encoder_seperate(graph_last_state,last_rej_rate)
+        current_state_encoded = self.gnn_encoder(graph_current_state,last_rej_rate)
+        last_state_encoded = self.gnn_encoder(graph_last_state,last_rej_rate)
 
 
         # Calculate target Q
